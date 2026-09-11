@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Plans - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <h1>My Plans</h1>
+      <p class="editor-note">
+        {{ client.user.email|default:"No email on file" }} &middot; trained by {{ client.trainer.user.get_full_name|default:client.trainer.user.username }}
+      </p>
+
+      <div class="editor-section">
+        <div class="editor-section-head"><h2>Current plan</h2></div>
+        {% if active_assignment %}
+          <div class="editor-card">
+            <div class="editor-card-main">
+              <div>
+                <div class="editor-card-title"><strong>{{ active_assignment.plan.name }}</strong></div>
+                <div class="editor-card-sub">assigned {{ active_assignment.assigned_at|date:"M j, Y" }}</div>
+              </div>
+            </div>
+            <div class="editor-card-actions">
+              <a href="{% url 'training_physical' %}">Open &rarr;</a>
+            </div>
+          </div>
+        {% else %}
+          <p class="editor-empty">No plan assigned yet -- check back once your trainer sets one up.</p>
+        {% endif %}
+      </div>
+
+      {% if past_assignments %}
+        <div class="editor-section">
+          <div class="editor-section-head"><h2>Past plans</h2></div>
+          <div class="editor-list">
+            {% for a in past_assignments %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ a.plan.name }}</strong></div>
+                    <div class="editor-card-sub">assigned {{ a.assigned_at|date:"M j, Y" }}</div>
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <a href="{% url 'client_plan_history' a.id %}">View</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

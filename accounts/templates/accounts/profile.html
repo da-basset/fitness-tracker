@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <h1>{{ user.username }}</h1>
+      <p class="editor-note">
+        {{ user.email|default:"No email on file" }}
+        &middot; joined {{ user.date_joined|date:"M j, Y" }}
+      </p>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Account</h2>
+        </div>
+        <p class="editor-note">Theme: <strong>{{ profile.get_theme_display }}</strong> &mdash; change it from the settings menu (&#9881;) in the nav bar.</p>
+      </div>
+
+      {% if owned_gym or trainer_profile or client_profile %}
+        <div class="editor-section">
+          <div class="editor-section-head">
+            <h2>Roles</h2>
+          </div>
+          <div class="editor-list">
+            {% if owned_gym %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>Owner</strong></div>
+                    <div class="editor-card-sub">
+                      <a href="{% url 'owner_dashboard' %}">{{ owned_gym.name }}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+            {% if trainer_profile %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>Trainer</strong></div>
+                    <div class="editor-card-sub">
+                      at {{ trainer_profile.gym.name }} &middot;
+                      <a href="{% url 'trainer_dashboard' %}">Your clients</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+            {% if client_profile %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>Client</strong></div>
+                    <div class="editor-card-sub">
+                      trained by {{ client_profile.trainer.user.username }} &middot;
+                      <a href="{% url 'training_hub' %}">Your training</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

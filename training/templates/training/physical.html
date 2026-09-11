@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Physical Training - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'training_hub' %}">&larr; Training</a>
+      <h1>Physical Training</h1>
+      <p>A 12-week strength and conditioning log, ramping from 3 to 5 days a week -- sequenced to keep leg-loading days off each other's back.</p>
+
+      <nav class="phase-tabs" id="phaseTabs" role="tablist" aria-label="Training phases"></nav>
+      <div class="phase-panel" id="phasePanel"></div>
+
+      <div class="info-notice">Your checked-off sets are saved for today and will still be here if you refresh. A new day starts each workout's checklist fresh again.</div>
+    </section>
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    window.TRAINING_CONFIG = {
+      mode: "client",
+      scheduleUrl: "{% url 'training_api_schedule' %}",
+      workoutUrlTemplate: "/training/api/workouts/__ID__/",
+      toggleSetUrlTemplate: "/training/api/exercises/__ID__/sets/__SET__/toggle/",
+      completeUrlTemplate: "/training/api/workouts/__ID__/complete/"
+    };
+  </script>
+  <script src="{% static 'js/training.js' %}?v=8"></script>
+{% endblock %}

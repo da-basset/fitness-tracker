@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ plan.name }} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      {% if viewing_own %}
+        <a class="back-link" href="{% url 'client_dashboard' %}">&larr; My Plans</a>
+      {% elif owning_client %}
+        <a class="back-link" href="{% url 'trainer_client_detail' owning_client.id %}">&larr; {{ owning_client.user.get_full_name|default:owning_client.user.username }}</a>
+      {% endif %}
+
+      <h1>{{ plan.name }}</h1>
+
+      {% if mode == "preview" %}
+        <div class="preview-banner">Previewing exactly what {{ owning_client.user.get_full_name|default:owning_client.user.username }} sees. This is read-only -- nothing clicked here is saved.</div>
+      {% else %}
+        <div class="preview-banner">Read-only. This shows the plan's structure as it was -- set-checkboxes and "Mark Completed" only ever apply to today's active plan.</div>
+      {% endif %}
+
+      <nav class="phase-tabs" id="phaseTabs" role="tablist" aria-label="Plan phases"></nav>
+      <div class="phase-panel" id="phasePanel"></div>
+    </section>
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    window.TRAINING_CONFIG = {
+      mode: "{{ mode }}",
+      scheduleUrl: "/training/plans/{{ plan.id }}/api/schedule/",
+      workoutUrlTemplate: "/training/plans/{{ plan.id }}/api/workouts/__ID__/"
+    };
+  </script>
+  <script src="{% static 'js/training.js' %}?v=8"></script>
+{% endblock %}

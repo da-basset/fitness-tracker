@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Clients - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <h1>{% if is_owner_view %}Trainers &amp; Clients{% else %}Your Clients{% endif %}</h1>
+      <p>Each client's card opens their plan -- editing every workout, phase, exercise, and the schedule itself all happens there.</p>
+
+      {% for section in sections %}
+        <div class="editor-section">
+          <div class="editor-section-head">
+            <h2>{{ section.trainer.user.get_full_name|default:section.trainer.user.username }}{% if section.is_self %} (you){% endif %}</h2>
+            <div class="plan-detail-actions">
+              <a class="editor-add-link" href="{% url 'plan_library' section.trainer.id %}">Plan library</a>
+              {% if section.is_self %}
+                <a class="editor-add-link" href="{% url 'trainer_client_create' %}">+ Add client</a>
+              {% endif %}
+            </div>
+          </div>
+          {% if section.cards %}
+            <div class="client-grid">
+              {% for card in section.cards %}
+                <a class="client-card" href="{% url 'trainer_client_detail' card.client.id %}">
+                  <div class="client-card-name">{{ card.name }}</div>
+                  <div class="client-card-sub">
+                    {% if card.plan_name %}{{ card.plan_name }}{% else %}No plan assigned{% endif %}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="editor-empty">No clients yet.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  </main>
+{% endblock %}

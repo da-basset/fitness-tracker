@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage {{ plan.name }} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'plan_detail' plan.id %}">&larr; {{ plan.name }}</a>
+      <h1>Workouts, Phases, Nutrients &amp; Supplements</h1>
+      <p>Manage the workouts in rotation and how they're laid out across this plan's phases and weeks.</p>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Workouts</h2>
+          <form method="post" action="{% url 'plan_workout_create' plan.id %}">
+            {% csrf_token %}
+            <button type="submit" class="editor-add-link">+ Add workout</button>
+          </form>
+        </div>
+        {% if workouts %}
+          <div class="editor-list">
+            {% for w in workouts %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <span class="color-swatch swatch-{{ w.color }}"></span>
+                  <div>
+                    <div class="editor-card-title"><strong>{{ w.name }}</strong></div>
+                    {% if w.sub %}<div class="editor-card-sub">{{ w.sub }}</div>{% endif %}
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <a href="{% url 'workout_edit' w.id %}">Edit</a>
+                  <a href="{% url 'workout_delete' w.id %}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No workouts yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Phases</h2>
+          {% if can_add_phase %}
+            <a class="editor-add-link" href="{% url 'plan_phase_create' plan.id %}">+ Add phase</a>
+          {% endif %}
+        </div>
+        <p class="editor-note">{{ phase_count }} of {{ max_phases }} phases used.{% if not can_add_phase %} You're at the max -- delete a phase to add another.{% endif %}</p>
+        {% if phases %}
+          <div class="editor-list">
+            {% for p in phases %}
+              <div class="editor-card editor-card-phase">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ p.title }}</strong> <span class="editor-card-sub">&middot; {{ p.label }} ({{ p.duration_weeks }} week{{ p.duration_weeks|pluralize }})</span></div>
+                    <div class="editor-card-days">
+                      {% for week in p.weeks.all %}
+                        <span class="day-chip week-chip" title="{{ week.label }}">{{ week.label }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <a href="{% url 'phase_edit' p.id %}">Edit</a>
+                  <a href="{% url 'phase_delete' p.id %}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No phases yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Nutrients</h2>
+          <a class="editor-add-link" href="{% url 'plan_nutrient_create' plan.id %}">+ Add nutrient</a>
+        </div>
+        <p class="editor-note">A read-only reference list the client sees alongside their phases -- e.g. "Protein -- 180g/day".</p>
+        {% if nutrients %}
+          <div class="editor-list">
+            {% for n in nutrients %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ n.name }}</strong>{% if n.amount %} <span class="editor-card-sub">&middot; {{ n.amount }}</span>{% endif %}</div>
+                    {% if n.timing %}<div class="editor-card-sub">{{ n.timing }}</div>{% endif %}
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <a href="{% url 'nutrient_edit' n.id %}">Edit</a>
+                  <a href="{% url 'nutrient_delete' n.id %}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No nutrients yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Supplements</h2>
+          <a class="editor-add-link" href="{% url 'plan_supplement_create' plan.id %}">+ Add supplement</a>
+        </div>
+        <p class="editor-note">A read-only reference list the client sees alongside their phases -- e.g. "Creatine -- 5g, morning".</p>
+        {% if supplements %}
+          <div class="editor-list">
+            {% for s in supplements %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ s.name }}</strong>{% if s.amount %} <span class="editor-card-sub">&middot; {{ s.amount }}</span>{% endif %}</div>
+                    {% if s.timing %}<div class="editor-card-sub">{{ s.timing }}</div>{% endif %}
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <a href="{% url 'supplement_edit' s.id %}">Edit</a>
+                  <a href="{% url 'supplement_delete' s.id %}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No supplements yet.</p>
+        {% endif %}
+      </div>
+
+      {% if plan.is_library_template %}
+        <div class="editor-section">
+          <h2>Danger zone</h2>
+          <p class="editor-note">Deleting this plan permanently removes its workouts, phases, and exercises. It's never been assigned to a client, so there's no history to lose.</p>
+          <a class="btn-danger" href="{% url 'plan_delete' plan.id %}">Delete this plan</a>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

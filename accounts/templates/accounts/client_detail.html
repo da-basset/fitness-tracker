@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ client.user.get_full_name|default:client.user.username }} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'trainer_dashboard' %}">&larr; Clients</a>
+      <h1>{{ client.user.get_full_name|default:client.user.username }}</h1>
+      <p class="editor-note">
+        {{ client.user.email|default:"No email on file" }} &middot; client since {{ client.created_at|date:"M j, Y" }}
+      </p>
+
+      {% if stats %}
+        <div class="editor-section">
+          <div class="editor-section-head"><h2>Stats</h2></div>
+          <div class="stat-row">
+            <div class="stat-tile">
+              <div class="stat-value">{{ stats.all_time_completed }}</div>
+              <div class="stat-label">workouts completed (this plan)</div>
+            </div>
+            <div class="stat-tile">
+              <div class="stat-value">{{ stats.last_completed_at|date:"M j"|default:"--" }}</div>
+              <div class="stat-label">last logged</div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="editor-section">
+        <div class="editor-section-head"><h2>Current plan</h2></div>
+        {% if active_assignment %}
+          <p class="editor-note"><strong>{{ active_assignment.plan.name }}</strong> &middot; assigned {{ active_assignment.assigned_at|date:"M j, Y" }}</p>
+          <div class="plan-detail-actions">
+            <a class="btn-primary" href="{% url 'plan_detail' active_assignment.plan.id %}">Edit plan</a>
+            <a class="btn-secondary" href="{% url 'plan_preview' active_assignment.plan.id %}">Client view</a>
+            <form method="post" action="{% url 'plan_unassign' active_assignment.id %}">
+              {% csrf_token %}
+              <button type="submit" class="link-btn">Un-assign</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="editor-empty">No plan assigned yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Assign a plan</h2>
+          <a class="editor-add-link" href="{% url 'plan_library' client.trainer_id %}">Manage plan library</a>
+        </div>
+        {% if templates %}
+          <div class="editor-list">
+            {% for p in templates %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ p.name }}</strong></div>
+                    {% if p.description %}<div class="editor-card-sub">{{ p.description }}</div>{% endif %}
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <form method="post" action="{% url 'plan_assign' p.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="client_id" value="{{ client.id }}">
+                    <button type="submit" class="link-btn">Assign</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No plan templates yet -- <a href="{% url 'plan_create' client.trainer_id %}">create one</a> first.</p>
+        {% endif %}
+      </div>
+
+      {% if past_assignments %}
+        <div class="editor-section">
+          <div class="editor-section-head"><h2>Past plans</h2></div>
+          <div class="editor-list">
+            {% for a in past_assignments %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ a.plan.name }}</strong></div>
+                    <div class="editor-card-sub">assigned {{ a.assigned_at|date:"M j, Y" }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

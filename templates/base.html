@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Isaac Spann{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=13">
+</head>
+<body data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}" data-user-theme="{{ user_theme|default_if_none:'' }}" data-theme-endpoint="{% url 'set_theme' %}">
+  <header>
+    <nav>
+      <a href="{% if not on_home %}{% url 'home' %}{% endif %}#home" class="brand">Isaac Spann</a>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="{% if not on_home %}{% url 'home' %}{% endif %}#home">Home</a>
+          <a href="{% if not on_home %}{% url 'home' %}{% endif %}#about">About</a>
+          <a href="{% if not on_home %}{% url 'home' %}{% endif %}#projects">Projects</a>
+          <a href="{% if not on_home %}{% url 'home' %}{% endif %}#contact">Contact</a>
+          {% if user.is_authenticated and user.owned_gyms.exists %}
+            <a href="{% url 'owner_dashboard' %}"{% if owner_current %} aria-current="page"{% endif %}>Owner</a>
+          {% endif %}
+          {% if user.is_authenticated and user.trainer_profile or user.is_authenticated and user.owned_gyms.exists %}
+            <a href="{% url 'trainer_dashboard' %}"{% if trainer_current %} aria-current="page"{% endif %}>Clients</a>
+          {% endif %}
+        </div>
+        <div class="settings">
+          <button id="settings-toggle" class="settings-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="settings-panel" aria-label="Menu">&#9881;</button>
+          <div id="settings-panel" class="settings-panel" hidden>
+            {% if user.is_authenticated %}
+              <div class="settings-user">Signed in as <strong>{{ user.username }}</strong></div>
+              <a href="{% url 'profile' %}" class="settings-link">My profile</a>
+              {% if user.client_profile %}
+                <a href="{% url 'client_dashboard' %}" class="settings-link"{% if client_current %} aria-current="page"{% endif %}>My Plans</a>
+              {% endif %}
+            {% endif %}
+            <a href="{% url 'training_hub' %}" class="settings-link"{% if training_current %} aria-current="page"{% endif %}>Training</a>
+            <label class="settings-option">
+              <span>Dark mode</span>
+              <input type="checkbox" id="dark-mode-toggle">
+            </label>
+            {% if user.is_authenticated %}
+              <form action="{% url 'logout' %}" method="post" class="settings-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="settings-link">Log out</button>
+              </form>
+            {% else %}
+              <a href="{% url 'login' %}" class="settings-link">Log in</a>
+              <p class="settings-hint">Log in to save your theme to your account.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  <footer>
+    <p>&copy; <span id="year"></span> Isaac Spann</p>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

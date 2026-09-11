@@ -1,0 +1,1694 @@
+/* A small reset: browsers apply their own default margins/padding to
+   elements like <body> and <h1>. We zero those out so we start from a
+   predictable blank slate instead of fighting inconsistent defaults. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS custom properties (variables). Defining colors once here, then
+   referencing them everywhere else as var(--name), means a whole theme
+   swap is just redefining these values in one place instead of hunting
+   down every hex code in the file. :root is the <html> element -- the
+   top of the document, so anything defined here is visible everywhere. */
+:root {
+  --bg: #fdf1c7;
+  --fg: #3b2a1a;
+  --muted: #6b5842;
+  --accent: #8a5a2c;
+  --card-bg: rgba(0, 0, 0, 0.03);
+  --card-border: rgba(0, 0, 0, 0.08);
+}
+
+/* When <html> has data-theme="dark" (set by JS, see main.js), these
+   values override the defaults above. Nothing else in this file has to
+   change -- every rule below just reads whatever --bg/--fg/etc currently
+   resolve to. */
+:root[data-theme="dark"] {
+  --bg: #14181f;
+  --fg: #e8e6e1;
+  --muted: #9aa0a6;
+  --accent: #d9a24b;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.14);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+header {
+  padding: 1.5rem 2rem;
+}
+
+/* display: flex turns this element into a flex container -- its direct
+   children (the brand link and the nav-right group) line up in a row by
+   default. justify-content: space-between pushes them to opposite ends,
+   align-items: center vertically centers them within the row. */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.brand {
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Groups the nav links and the settings button together on the right,
+   so the outer nav still only has two things to space-between: the
+   brand on the left, this whole group on the right. */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-links a {
+  margin-left: 1.25rem;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.nav-links a:hover {
+  color: var(--fg);
+}
+
+/* The settings button's dropdown panel is positioned relative to this
+   wrapper -- position: relative here + position: absolute on the panel
+   is the standard way to anchor a popup to the element that opens it. */
+.settings {
+  position: relative;
+}
+
+.settings-btn {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+.settings-btn:hover {
+  background: var(--card-bg);
+}
+
+.settings-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  min-width: 160px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* The [hidden] attribute already tells the browser not to display this
+   element, but some older CSS resets override that -- being explicit
+   here guarantees it regardless. */
+.settings-panel[hidden] {
+  display: none;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--card-border);
+}
+
+/* The panel now doubles as the site's full nav-on-mobile menu (identity,
+   Training, appearance, session), not just a settings dropdown -- the
+   identity block gets its own rule under it so the groups read as
+   "who you are", "where to go", "how it looks". */
+.settings-user {
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--card-border);
+  white-space: nowrap;
+}
+
+.settings-user strong {
+  color: var(--fg);
+}
+
+/* Shared by the profile/training/login/log-out items -- a plain <a> for
+   most of them, but Log out has to be a <button> (it submits a POST
+   form), so this resets button chrome too and makes both look identical. */
+.settings-link {
+  display: block;
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  margin-bottom: 0.75rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-link:hover {
+  text-decoration: underline;
+}
+
+.settings-link[aria-current="page"] {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.settings-logout-form {
+  margin: 0.75rem 0 0;
+}
+
+.settings-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  max-width: 180px;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Each section gets breathing room above/below so stacked content on a
+   single-page site doesn't feel cramped together. */
+section {
+  padding: 3rem 0;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+/* Section headings use h2, not h1 -- there should only be one h1 per
+   page (it's the page's main title). h2 is the next level down in the
+   heading hierarchy, used for each major section's title. */
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+/* CSS Grid vs. Flexbox: flexbox (used on the nav) is for one dimension --
+   a single row or column. Grid handles two dimensions at once (rows AND
+   columns), which is what a card layout needs.
+
+   repeat(auto-fit, minmax(200px, 1fr)) is a common responsive pattern:
+   "fit as many columns as will fit, each at least 200px wide, and share
+   remaining space equally (1fr = one fraction of the leftover space)."
+   The browser recalculates this automatically as the window resizes --
+   cards drop to fewer columns (eventually one) on a narrow screen,
+   with no media query needed. */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.project-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+/* h3 is one level below h2 -- each card's title is a subsection of the
+   "Projects" section, so it steps down the heading hierarchy again. */
+.project-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.project-card p {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.hero p {
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+/* list-style: none strips the default bullet points -- <ul>/<li> is still
+   the right semantic choice here (this is a list of related links), we're
+   just overriding how it's visually presented. */
+.contact-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.contact-links a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contact-links a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* --- Responsive: phone-sized screens ---
+
+   This is a "desktop-first" media query: our default styles above assume
+   a normal-width screen, and this block overrides just what needs to
+   change below 640px (roughly where phones stop and tablets/small
+   laptops start). The alternative approach, "mobile-first," writes the
+   base styles for small screens and uses min-width queries to add
+   complexity for bigger ones -- both work, this is just simpler to layer
+   on top of what we already built.
+
+   Note we didn't need to touch the project grid at all: the
+   auto-fit/minmax pattern from step 5 already reflows to one column on
+   narrow screens with zero extra code. */
+@media (max-width: 640px) {
+  header,
+  main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .nav-links a {
+    margin-left: 0;
+    margin-right: 1rem;
+  }
+
+  section {
+    padding: 2rem 0;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .contact-links {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+/* --- Training section --- */
+
+.training-main {
+  max-width: 900px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back-link:hover {
+  color: var(--fg);
+}
+
+.info-notice {
+  display: inline-block;
+  margin: 1rem 0;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Nutrients/Supplements tab content (training.js renderNotesPanel) --
+   rendered inside the same .phase-panel card the phase tabs use, as a
+   plain list of read-only rows (name, amount/dosage, timing, notes).
+   Adding/editing/deleting happens on the plan's Manage page instead,
+   same as Workouts & Phases. */
+.note-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .note-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+.note-item {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.note-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.note-item-amount {
+  color: var(--accent);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.note-item-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.note-item-notes {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  white-space: pre-wrap;
+}
+
+/* Module hub cards (training.html) */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.module-card {
+  display: block;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.module-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.module-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.module-card p {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Categorical workout colors -- fixed across themes since these are
+   solid-fill badges/tags, not full-page surfaces, so they stay legible
+   in both light and dark mode without needing separate overrides. */
+:root {
+  --train-red: #b5432f;
+  --train-blue: #3a6ea5;
+  --train-green: #2f7a4f;
+  --train-amber: #b45309;
+  --train-violet: #6d28d9;
+  --train-teal: #0f766e;
+  --train-rose: #be185d;
+  --train-main: #55606b;
+}
+
+/* Phase tabs -- a touching strip (each tab's left border overlaps the
+   previous tab's right border by 1px) rather than gapped pills. */
+.phase-tabs {
+  display: flex;
+  justify-content: flex-start;
+  max-width: none;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 1.5rem 0 1rem;
+}
+
+.phase-tab {
+  position: relative;
+  font-size: 0.85rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-bottom: 3px solid var(--card-border);
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: inherit;
+  margin-left: -1px;
+}
+
+.phase-tab:first-child {
+  margin-left: 0;
+}
+
+.phase-tab:hover {
+  color: var(--fg);
+  z-index: 1;
+}
+
+.phase-tab.active {
+  color: var(--fg);
+  font-weight: 700;
+  border-color: var(--accent);
+  border-bottom-color: var(--card-bg);
+  background: var(--card-bg);
+  z-index: 2;
+}
+
+.phase-tab-range {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
+.phase-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0 8px 8px 8px;
+  padding: 1.5rem;
+}
+
+.week-tabs {
+  display: flex;
+  justify-content: flex-start;
+  max-width: none;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 0 0 1.1rem;
+}
+
+.week-tab {
+  position: relative;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  padding: 0.3rem 0.7rem;
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: inherit;
+  margin-left: -1px;
+}
+
+.week-tab:first-child {
+  margin-left: 0;
+  border-radius: 999px 0 0 999px;
+}
+
+.week-tab:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.week-tab:hover {
+  color: var(--fg);
+  z-index: 1;
+}
+
+.week-tab.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+  z-index: 2;
+}
+
+.phase-head {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.week-tally {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.tally-count,
+.tally-stamp {
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  white-space: nowrap;
+}
+
+.tally-count {
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  font-weight: 600;
+}
+
+.tally-stamp {
+  color: var(--train-green);
+  background: var(--bg);
+  border: 1px solid var(--train-green);
+}
+
+.stamp {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  border: 2px dashed var(--accent);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.15;
+  padding: 0.2rem;
+}
+
+.phase-titles h2 {
+  font-size: 1.3rem;
+  margin: 0;
+  color: var(--fg);
+}
+
+.phase-titles .sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.phase-note {
+  margin: 1rem 0 1.25rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.phase-note strong {
+  color: var(--accent);
+}
+
+.phase-note ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.phase-note li {
+  margin-bottom: 0.25rem;
+}
+
+.phase-note li:last-child {
+  margin-bottom: 0;
+}
+
+/* Week grid */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.day-cell {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.4rem;
+  text-align: center;
+  background: var(--bg);
+}
+
+.day-cell .dow {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.day-btn {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.25rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1.2;
+  font-family: inherit;
+}
+
+.day-btn.selected {
+  box-shadow: inset 0 0 0 2px var(--fg);
+}
+
+.day-btn .letter {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.rest-cell {
+  font-size: 0.72rem;
+  color: var(--muted);
+  border: 1px dashed var(--card-border);
+  border-radius: 6px;
+  padding: 0.9rem 0.25rem;
+}
+
+.badge-red, .swatch-red { background: var(--train-red); }
+.badge-blue, .swatch-blue { background: var(--train-blue); }
+.badge-green, .swatch-green { background: var(--train-green); }
+.badge-amber, .swatch-amber { background: var(--train-amber); }
+.badge-violet, .swatch-violet { background: var(--train-violet); }
+.badge-teal, .swatch-teal { background: var(--train-teal); }
+.badge-rose, .swatch-rose { background: var(--train-rose); }
+
+/* Detail table */
+.detail {
+  margin-top: 1.25rem;
+  border-top: 2px solid var(--card-border);
+  padding-top: 1rem;
+  display: none;
+}
+
+.detail.open {
+  display: block;
+}
+
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.detail h3 {
+  font-size: 1.3rem;
+  margin: 0 0 0.15rem;
+  color: var(--fg);
+}
+
+.workout-complete-btn {
+  flex: 0 0 auto;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.workout-complete-btn:hover {
+  border-color: var(--train-green);
+}
+
+.workout-complete-btn.done {
+  border-color: var(--train-green);
+  background: var(--train-green);
+  color: #fff;
+}
+
+.detail .dsub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+  display: block;
+}
+
+.detail .flavor {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0.5rem 0 1rem;
+}
+
+table.log {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+table.log th {
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--fg);
+  padding: 0.4rem 0.5rem;
+}
+
+table.log td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--card-border);
+  vertical-align: middle;
+}
+
+table.log td.ex-name {
+  font-weight: 600;
+}
+
+table.log tr.done td {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+table.log tr.seg-Core td,
+table.log tr.seg-Cardio td,
+table.log tr.seg-Stretch td {
+  background: var(--bg);
+}
+
+.chk {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  accent-color: var(--train-green);
+}
+
+.seg-tag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.seg-tag.seg-Main { background: var(--train-main); }
+.seg-tag.seg-Core { background: var(--train-green); }
+.seg-tag.seg-Cardio { background: var(--train-blue); }
+.seg-tag.seg-Stretch { background: var(--train-violet); }
+
+/* --- Set expand/collapse + rest timer (training-physical.html) --- */
+
+.set-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.8rem;
+  padding: 0.2rem;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.set-toggle:hover {
+  color: var(--fg);
+}
+
+.set-toggle.expanded {
+  transform: rotate(90deg);
+  color: var(--accent);
+}
+
+.set-progress {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+  margin-left: 0.4rem;
+}
+
+tr.set-row td {
+  padding: 0.75rem 0.5rem 1rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.set-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.set-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.set-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: var(--bg);
+  user-select: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.set-chip input {
+  cursor: pointer;
+  accent-color: var(--train-green);
+}
+
+.set-chip:has(input:checked) {
+  border-color: var(--train-green);
+  color: var(--train-green);
+}
+
+.rest-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rest-timer-bar {
+  flex: 1;
+  max-width: 220px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--card-border);
+  overflow: hidden;
+}
+
+.rest-timer-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 100%;
+  transition: width 1s linear;
+}
+
+.rest-timer.done {
+  color: var(--train-green);
+}
+
+.rest-timer.done .rest-timer-fill {
+  background: var(--train-green);
+}
+
+/* --- Auth (login/logout nav + login page) --- */
+
+.nav-links .link-btn {
+  margin-left: 1.25rem;
+  text-decoration: none;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nav-links .link-btn:hover {
+  color: var(--fg);
+}
+
+.logout-form {
+  display: inline;
+  margin: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 320px;
+  margin-top: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.form-field input {
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--fg);
+  font-size: 0.95rem;
+}
+
+.form-error {
+  color: var(--train-red);
+  font-size: 0.85rem;
+}
+
+.btn-primary {
+  align-self: flex-start;
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* workout_form.html's Save changes button (mode "workout" only -- see
+   addExerciseFormHtml in training.js) sits in the same toolbar row as
+   "+ Add exercise", pushed to the right, instead of up above the
+   exercise table where the old inline form button used to be. */
+.edit-exercises-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* --- Exercise editor: add/delete (training-physical.html) --- */
+
+.edit-exercises {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--card-border);
+}
+
+.edit-exercises-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.edit-exercises-toggle:hover {
+  background: var(--card-bg);
+}
+
+.edit-exercises-icon {
+  display: inline-block;
+  font-size: 0.75em;
+  transition: transform 0.15s ease;
+}
+
+.edit-exercises-toggle.expanded .edit-exercises-icon {
+  transform: rotate(90deg);
+}
+
+.add-exercise-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  align-items: flex-end;
+}
+
+.add-exercise-form[hidden] {
+  display: none;
+}
+
+.add-exercise-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.add-exercise-form input,
+.add-exercise-form select {
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.85rem;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.add-exercise-form .field.name input {
+  min-width: 200px;
+}
+
+.add-exercise-form .field.narrow input {
+  width: 70px;
+}
+
+.add-exercise-error {
+  color: var(--train-red);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.ex-actions {
+  white-space: nowrap;
+}
+
+.exercise-edit,
+.exercise-delete {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.exercise-edit {
+  margin-right: 0.3rem;
+}
+
+.log.editing .exercise-edit,
+.log.editing .exercise-delete {
+  display: inline-flex;
+}
+
+.exercise-edit {
+  color: var(--muted);
+}
+
+.exercise-edit:hover {
+  color: var(--accent);
+  background: var(--card-bg);
+}
+
+.exercise-delete {
+  color: var(--train-red);
+}
+
+.exercise-delete:hover {
+  opacity: 0.7;
+  background: var(--card-bg);
+}
+
+/* Drag-to-reorder grip -- unlike the pencil/trash above, this stays
+   visible all the time (just faint) so it reads as a standing hint that
+   rows can be dragged, not a feature you only discover in edit mode. */
+.exercise-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  margin-right: 0.15rem;
+  cursor: grab;
+  line-height: 1;
+  vertical-align: middle;
+  color: var(--muted);
+  opacity: 0.4;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+table.log tr:hover .exercise-drag-handle {
+  opacity: 0.8;
+}
+
+.exercise-drag-handle:hover,
+.exercise-drag-handle:focus-visible {
+  opacity: 1;
+  color: var(--accent);
+  background: var(--card-bg);
+}
+
+.exercise-drag-handle:active {
+  cursor: grabbing;
+}
+
+tr.exercise-main-row.dragging,
+tr.edit-row.dragging,
+tr.set-row.dragging {
+  opacity: 0.4;
+}
+
+tr.exercise-main-row.drag-over-top {
+  box-shadow: inset 0 2px 0 0 var(--accent);
+}
+
+tr.exercise-main-row.drag-over-bottom {
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+
+.icon {
+  display: block;
+}
+
+/* --- Edit-exercise form (training-physical.html) --- */
+
+.edit-row td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.edit-exercise-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+
+.edit-exercise-form[hidden] {
+  display: none;
+}
+
+.edit-exercise-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.edit-exercise-form input,
+.edit-exercise-form select {
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.85rem;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.edit-exercise-form .field.name input {
+  min-width: 200px;
+}
+
+.edit-exercise-form .field.narrow input {
+  width: 70px;
+}
+
+.edit-exercise-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-cancel-edit {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.btn-cancel-edit:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.edit-exercise-error {
+  color: var(--train-red);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+/* --- Week/Day + Workout editor (edit_schedule.html and friends) --- */
+
+.page-head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.editor-add-link {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.editor-add-link:hover {
+  text-decoration: underline;
+}
+
+/* Some "+ Add ..." triggers are a <button> in a one-field POST form
+   instead of a plain <a> (e.g. "+ Add workout", which now creates the row
+   immediately -- see plan_workout_create) so a GET can't create a stray
+   row via prefetch/back-navigation. Reset browser button chrome so it's
+   visually identical to the link version. */
+button.editor-add-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.editor-section {
+  margin-top: 2rem;
+}
+
+.editor-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.editor-section-head h2 {
+  font-size: 1.1rem;
+  color: var(--fg);
+}
+
+.editor-note {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.editor-empty {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.editor-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.editor-card-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.editor-card-title {
+  font-size: 0.92rem;
+  color: var(--fg);
+}
+
+.editor-card-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.editor-card-days {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.day-chip {
+  width: 1.7rem;
+  height: 1.4rem;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.day-chip.rest {
+  background: transparent;
+  border: 1px dashed var(--card-border);
+  color: var(--muted);
+}
+
+.day-chip.week-chip {
+  width: auto;
+  height: auto;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.editor-card-actions {
+  display: flex;
+  gap: 0.9rem;
+  flex-shrink: 0;
+}
+
+.editor-card-actions a {
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.editor-card-actions a:hover {
+  color: var(--accent);
+}
+
+.color-swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 480px;
+  margin-top: 1.5rem;
+}
+
+.editor-form-inline {
+  flex-direction: row;
+  align-items: center;
+  max-width: none;
+}
+
+.week-add-form {
+  margin-top: 1rem;
+}
+
+.week-editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 0.35rem;
+}
+
+.week-editor-card {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg);
+}
+
+.week-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--fg);
+}
+
+.week-editor-remove {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.week-editor-remove:hover {
+  color: var(--train-red);
+}
+
+.editor-form textarea,
+.editor-form input[type="text"],
+.editor-form input[type="number"],
+.editor-form select {
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--fg);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.color-option {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.color-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.color-option .color-swatch {
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.color-option input:checked + .color-swatch {
+  border-color: var(--fg);
+}
+
+.weekday-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 640px) {
+  .weekday-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.weekday-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.btn-danger {
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--train-red);
+  background: var(--train-red);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: none;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-secondary:hover {
+  color: var(--fg);
+}
+
+/* --- /trainer client cards, per-client stats, read-only preview banner
+   (accounts/trainer_dashboard.html, accounts/client_detail.html,
+   training/plan_detail.html, training/plan_preview.html) --- */
+
+.link-btn {
+  text-decoration: none;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: var(--fg);
+}
+
+.plan-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.client-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.client-card {
+  display: block;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.client-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.client-card-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 0.3rem;
+}
+
+.client-card-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stat-row {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.stat-tile {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem 1.1rem;
+  min-width: 140px;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.preview-banner {
+  margin: 1rem 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  color: var(--muted);
+  font-size: 0.85rem;
+}

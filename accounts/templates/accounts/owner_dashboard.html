@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ gym.name }} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <h1>{{ gym.name }}</h1>
+      <p>Trainers at your gym. See every trainer's clients and plans on the <a href="{% url 'trainer_dashboard' %}">Clients</a> page.</p>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Trainers</h2>
+          <a class="editor-add-link" href="{% url 'owner_trainer_create' %}">+ Add trainer</a>
+        </div>
+        {% if trainers %}
+          <div class="editor-list">
+            {% for t in trainers %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong>{{ t.user.get_full_name|default:t.user.username }}</strong></div>
+                    <div class="editor-card-sub">{{ t.clients.count }} client{{ t.clients.count|pluralize }} &middot; joined {{ t.created_at|date:"M j, Y" }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No trainers yet.</p>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ trainer.user.username }}'s Plans - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'trainer_dashboard' %}">&larr; Clients</a>
+      <h1>{{ trainer.user.get_full_name|default:trainer.user.username }}'s Plan Library</h1>
+      <p>Reusable plan templates. Assigning one to a client makes that client an independent copy -- editing a template afterward never changes a copy already assigned, and editing one client's copy never affects another's.</p>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Templates</h2>
+          <a class="editor-add-link" href="{% url 'plan_create' trainer.id %}">+ New plan</a>
+        </div>
+        {% if templates %}
+          <div class="editor-list">
+            {% for p in templates %}
+              <div class="editor-card">
+                <div class="editor-card-main">
+                  <div>
+                    <div class="editor-card-title"><strong><a href="{% url 'plan_detail' p.id %}">{{ p.name }}</a></strong></div>
+                    {% if p.description %}<div class="editor-card-sub">{{ p.description }}</div>{% endif %}
+                    <div class="editor-card-sub">{{ p.workouts.count }} workout{{ p.workouts.count|pluralize }} &middot; {{ p.phases.count }} phase{{ p.phases.count|pluralize }}</div>
+                  </div>
+                </div>
+                <div class="editor-card-actions">
+                  <a href="{% url 'plan_assign' p.id %}">Assign to client</a>
+                  <a href="{% url 'plan_manage' p.id %}">Manage</a>
+                  <a href="{% url 'plan_delete' p.id %}">Delete</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="editor-empty">No templates yet -- create one to start assigning it to clients.</p>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+{% endblock %}

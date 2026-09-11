@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if is_new %}Add Supplement{% else %}Edit Supplement{% endif %} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'plan_manage' plan.id %}">&larr; {{ plan.name }}</a>
+      <h1>{% if is_new %}Add Supplement{% else %}Edit Supplement{% endif %}</h1>
+      <p class="editor-note">Shows up as a read-only line on the client's Supplements list.</p>
+
+      <form method="post" class="editor-form">
+        {% csrf_token %}
+
+        <label class="form-field">
+          <span>Name</span>
+          {{ form.name }}
+        </label>
+        {% if form.name.errors %}<div class="form-error">{{ form.name.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Amount</span>
+          {{ form.amount }}
+        </label>
+        {% if form.amount.errors %}<div class="form-error">{{ form.amount.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Timing</span>
+          {{ form.timing }}
+        </label>
+        {% if form.timing.errors %}<div class="form-error">{{ form.timing.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Notes</span>
+          {{ form.notes }}
+        </label>
+        {% if form.notes.errors %}<div class="form-error">{{ form.notes.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Order (lower shows first)</span>
+          {{ form.order }}
+        </label>
+        {% if form.order.errors %}<div class="form-error">{{ form.order.errors|join:" " }}</div>{% endif %}
+
+        <button type="submit" class="btn-primary">{% if is_new %}Add supplement{% else %}Save changes{% endif %}</button>
+      </form>
+    </section>
+  </main>
+{% endblock %}

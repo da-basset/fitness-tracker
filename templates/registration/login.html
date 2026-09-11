@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Log in - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <h1>Log in</h1>
+      <p>Sign in to use the Training section.</p>
+
+      <form method="post" class="login-form">
+        {% csrf_token %}
+        {% if form.errors %}
+          <div class="form-error">Incorrect username or password. Try again.</div>
+        {% endif %}
+        <label class="form-field">
+          <span>Username</span>
+          {{ form.username }}
+        </label>
+        <label class="form-field">
+          <span>Password</span>
+          {{ form.password }}
+        </label>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn-primary">Log in</button>
+      </form>
+    </section>
+  </main>
+{% endblock %}

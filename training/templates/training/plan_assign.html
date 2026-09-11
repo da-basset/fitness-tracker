@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Assign {{ template.name }} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'plan_library' template.trainer_id %}">&larr; Plan Library</a>
+      <h1>Assign "{{ template.name }}"</h1>
+      <p>Pick a client. They'll get their own independent copy -- editing it afterward never changes this template or any other client's copy.</p>
+
+      {% if clients %}
+        <div class="editor-list">
+          {% for c in clients %}
+            <div class="editor-card">
+              <div class="editor-card-main">
+                <div>
+                  <div class="editor-card-title"><strong>{{ c.user.get_full_name|default:c.user.username }}</strong></div>
+                </div>
+              </div>
+              <div class="editor-card-actions">
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="client_id" value="{{ c.id }}">
+                  <button type="submit" class="btn-primary">Assign</button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="editor-empty">This trainer has no clients yet.</p>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

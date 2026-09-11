@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if is_new %}Add Phase{% else %}Edit Phase{% endif %} - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'plan_manage' plan.id %}">&larr; {{ plan.name }}</a>
+      <h1>{% if is_new %}Add Phase{% else %}Edit Phase{% endif %}</h1>
+      {% if not is_new %}<p class="editor-note">Currently {{ phase.label }}.</p>{% endif %}
+
+      <form method="post" class="editor-form">
+        {% csrf_token %}
+
+        <label class="form-field">
+          <span>Title</span>
+          {{ form.title }}
+        </label>
+        {% if form.title.errors %}<div class="form-error">{{ form.title.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Order (lower runs earlier)</span>
+          {{ form.order }}
+        </label>
+        {% if form.order.errors %}<div class="form-error">{{ form.order.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Note (shown at the top of the phase)</span>
+          {{ form.note }}
+        </label>
+        {% if form.note.errors %}<div class="form-error">{{ form.note.errors|join:" " }}</div>{% endif %}
+
+        {% if week_rows %}
+          <div class="form-field">
+            <span>Weeks</span>
+            <div class="week-editor-list">
+              {% for row in week_rows %}
+                <div class="week-editor-card">
+                  <div class="week-editor-head">
+                    <strong>{{ row.week.label }}</strong>
+                    {% if week_rows|length > 1 %}
+                      <a class="week-editor-remove" href="{% url 'week_delete' row.week.id %}">Remove</a>
+                    {% endif %}
+                  </div>
+                  <div class="weekday-grid">
+                    {% for weekday, label, selected_id in row.day_rows %}
+                      <label class="weekday-field">
+                        <span>{{ label }}</span>
+                        <select name="day_week{{ row.week.id }}_{{ weekday }}">
+                          <option value="">Rest day</option>
+                          {% for w in workouts %}
+                            <option value="{{ w.id }}" {% if w.id == selected_id %}selected{% endif %}>{{ w.name }}</option>
+                          {% endfor %}
+                        </select>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <button type="submit" class="btn-primary">{% if is_new %}Add phase{% else %}Save changes{% endif %}</button>
+      </form>
+
+      {% if not is_new and can_add_week %}
+        <form method="post" action="{% url 'week_create' phase.id %}" class="editor-form-inline week-add-form">
+          {% csrf_token %}
+          <button type="submit" class="btn-secondary">+ Add week</button>
+        </form>
+      {% elif not is_new %}
+        <p class="editor-note">{{ week_rows|length }} of {{ max_weeks }} weeks used in this phase.</p>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

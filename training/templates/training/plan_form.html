@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}New Plan - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'plan_library' trainer.id %}">&larr; Plan Library</a>
+      <h1>New Plan</h1>
+      <p>Give it a name -- you'll build out its workouts, phases, and exercises next.</p>
+
+      <form method="post" class="editor-form">
+        {% csrf_token %}
+
+        <label class="form-field">
+          <span>Name</span>
+          {{ form.name }}
+        </label>
+        {% if form.name.errors %}<div class="form-error">{{ form.name.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Description (optional)</span>
+          {{ form.description }}
+        </label>
+        {% if form.description.errors %}<div class="form-error">{{ form.description.errors|join:" " }}</div>{% endif %}
+
+        <button type="submit" class="btn-primary">Create plan</button>
+      </form>
+    </section>
+  </main>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Training - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <h1>Training</h1>
+      <p>A few different things I'm tracking consistency on.</p>
+
+      <div class="module-grid">
+        <a class="module-card" href="{% url 'training_physical' %}">
+          <h3>Physical Training</h3>
+          <p>An interactive 12-week strength and conditioning log -- phases, workouts, and exercises.</p>
+        </a>
+        <a class="module-card" href="{% url 'training_spanish' %}">
+          <h3>Spanish Training</h3>
+          <p>Tracking Spanish practice and progress.</p>
+        </a>
+        <a class="module-card" href="{% url 'training_reading' %}">
+          <h3>Reading Consistency Training</h3>
+          <p>Tracking a consistent reading habit.</p>
+        </a>
+      </div>
+    </section>
+  </main>
+{% endblock %}

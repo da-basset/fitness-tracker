@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Workout - Isaac Spann{% endblock %}
+
+{% block content %}
+  <main class="training-main">
+    <section>
+      <a class="back-link" href="{% url 'plan_manage' plan.id %}">&larr; {{ plan.name }}</a>
+      <h1>Edit Workout</h1>
+
+      <form method="post" class="editor-form" id="workout-details-form">
+        {% csrf_token %}
+
+        <label class="form-field">
+          <span>Name</span>
+          {{ form.name }}
+        </label>
+        {% if form.name.errors %}<div class="form-error">{{ form.name.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Subtitle</span>
+          {{ form.sub }}
+        </label>
+        {% if form.sub.errors %}<div class="form-error">{{ form.sub.errors|join:" " }}</div>{% endif %}
+
+        <label class="form-field">
+          <span>Flavor / progression tip</span>
+          {{ form.flavor }}
+        </label>
+        {% if form.flavor.errors %}<div class="form-error">{{ form.flavor.errors|join:" " }}</div>{% endif %}
+
+        <div class="form-field">
+          <span>Color</span>
+          <div class="color-picker">
+            {% for radio in form.color %}
+              <label class="color-option">
+                {{ radio.tag }}
+                <span class="color-swatch swatch-{{ radio.data.value }}"></span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% if form.color.errors %}<div class="form-error">{{ form.color.errors|join:" " }}</div>{% endif %}
+      </form>
+
+      <div class="editor-section">
+        <div class="editor-section-head">
+          <h2>Exercises</h2>
+        </div>
+        <p class="editor-note">Add, edit, delete, and reorder (drag the grip icon) this workout's exercises. These apply everywhere this workout appears on the schedule.</p>
+        <!-- training.js renders "+ Add exercise" and, in mode "workout",
+             a Save changes button right alongside it in the same row --
+             see addExerciseFormHtml(). That button submits the
+             name/sub/flavor/color form above via the HTML form=
+             attribute (id="workout-details-form" on that <form>), even
+             though it's physically rendered down here. -->
+        <div id="workoutDetail"></div>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    window.TRAINING_CONFIG = {
+      mode: "workout",
+      workoutId: {{ workout.id }},
+      workoutUrlTemplate: "/training/plans/{{ plan.id }}/api/workouts/__ID__/",
+      createExerciseUrlTemplate: "/training/plans/{{ plan.id }}/api/workouts/__ID__/exercises/",
+      reorderUrlTemplate: "/training/plans/{{ plan.id }}/api/workouts/__ID__/exercises/reorder/",
+      exerciseDetailUrlTemplate: "/training/plans/{{ plan.id }}/api/exercises/__ID__/"
+    };
+  </script>
+  <script src="{% static 'js/training.js' %}?v=8"></script>
+{% endblock %}
