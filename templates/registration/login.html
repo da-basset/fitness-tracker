@@ -1,18 +1,25 @@
-{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in - Fitness Tracker</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=13">
+</head>
+<body class="login-page">
+  <main class="login-screen">
+    <div class="login-card">
+      <h1 class="login-title">Fitness Tracker</h1>
+      <p class="login-byline">By: Isaac Spann</p>
+      <p class="login-subtitle">Sign in to view your training plan.</p>
 
-{% block title %}Log in - Isaac Spann{% endblock %}
-
-{% block content %}
-  <main class="training-main">
-    <section>
-      <h1>Log in</h1>
-      <p>Sign in to use the Training section.</p>
+      {% if form.errors %}
+        <div class="form-error">Incorrect username or password. Try again.</div>
+      {% endif %}
 
       <form method="post" class="login-form">
         {% csrf_token %}
-        {% if form.errors %}
-          <div class="form-error">Incorrect username or password. Try again.</div>
-        {% endif %}
         <label class="form-field">
           <span>Username</span>
           {{ form.username }}
@@ -24,6 +31,7 @@
         <input type="hidden" name="next" value="{{ next }}">
         <button type="submit" class="btn-primary">Log in</button>
       </form>
-    </section>
+    </div>
   </main>
-{% endblock %}
+</body>
+</html>

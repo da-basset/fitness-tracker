@@ -228,58 +228,6 @@ h2 {
    The browser recalculates this automatically as the window resizes --
    cards drop to fewer columns (eventually one) on a narrow screen,
    with no media query needed. */
-.project-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  margin-top: 1rem;
-}
-
-.project-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 1.25rem;
-}
-
-/* h3 is one level below h2 -- each card's title is a subsection of the
-   "Projects" section, so it steps down the heading hierarchy again. */
-.project-card h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  color: var(--accent);
-}
-
-.project-card p {
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.hero p {
-  margin-top: 0.5rem;
-  color: var(--muted);
-}
-
-/* list-style: none strips the default bullet points -- <ul>/<li> is still
-   the right semantic choice here (this is a list of related links), we're
-   just overriding how it's visually presented. */
-.contact-links {
-  list-style: none;
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.contact-links a {
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.contact-links a:hover {
-  text-decoration: underline;
-}
-
 footer {
   max-width: 760px;
   margin: 0 auto;
@@ -325,11 +273,6 @@ footer {
 
   h1 {
     font-size: 1.6rem;
-  }
-
-  .contact-links {
-    flex-wrap: wrap;
-    gap: 1rem;
   }
 }
 
@@ -1031,6 +974,60 @@ tr.set-row td {
 
 .btn-primary:hover {
   opacity: 0.9;
+}
+
+/* --- Login landing page (root "/") --- */
+
+body.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-screen {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 2.5rem 2rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.login-byline {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.login-subtitle {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.login-card .login-form {
+  max-width: none;
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.login-card .btn-primary {
+  align-self: stretch;
+  text-align: center;
 }
 
 /* --- Exercise editor: add/delete (training-physical.html) --- */
