@@ -4,13 +4,13 @@ trees) rather than depending on any particular real data, so this suite
 is safe to run against the throwaway test database `manage.py test`
 always creates."""
 
-from accounts.models import Client as ClientProfile
-from accounts.models import Gym, Trainer
 from django.contrib.auth import get_user_model
 from django.test import Client as HttpClient
 from django.test import TestCase
 from django.urls import reverse
 
+from accounts.models import Client as ClientProfile
+from accounts.models import Gym, Trainer
 from training.models import Exercise, Nutrient, Phase, Plan, PlanAssignment, Supplement, Week, WeekDay, Workout
 from training.services import clone_plan_for_client
 
