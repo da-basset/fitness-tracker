@@ -1,12 +1,13 @@
 import json
 
-from accounts.models import Client, Trainer
-from accounts.permissions import can_manage_trainer
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+
+from accounts.models import Client, Trainer
+from accounts.permissions import can_manage_trainer
 
 from .forms import NutrientForm, PhaseForm, PlanForm, SupplementForm, WorkoutForm
 from .models import (

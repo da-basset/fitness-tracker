@@ -1,8 +1,8 @@
-from accounts.models import Client, Gym, Trainer
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from accounts.models import Client, Gym, Trainer
 from training.models import Exercise, Phase, Plan, PlanAssignment, Week, WeekDay, Workout
 
 # Keyed by a short internal label used only within this script (to wire up
