@@ -102,6 +102,58 @@ python3 manage.py runserver
 Visit `http://127.0.0.1:8000/`. Log in at `/accounts/login/` (or
 `/admin/`) with the superuser you created to reach `/training/`.
 
+## Native API (`/api/v1/`)
+
+The native-client API is separate from the browser UI and uses JSON plus an
+`Authorization: Bearer <access-token>` header. The existing `/training/api/`
+endpoints still use the Django login session and CSRF protections unchanged.
+
+Install dependencies and apply the SimpleJWT blacklist migrations:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 manage.py migrate
+```
+
+Get a token pair with a username and password:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/auth/token/ \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"your-user","password":"your-password"}'
+```
+
+Access tokens expire after 15 minutes. Refresh tokens expire after 30 days;
+every refresh rotates the token and blacklists the submitted one, so replace
+the saved refresh token with the returned value immediately. Logout submits
+the stored refresh token and blacklists it:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/auth/logout/ \
+  -H 'Authorization: Bearer <access-token>' \
+  -H 'Content-Type: application/json' -d '{"refresh":"<refresh-token>"}'
+```
+
+Client data endpoints require a client profile with an active assignment:
+
+- `GET /api/v1/me/` — identity, all role names, and profile IDs.
+- `GET /api/v1/plans/active/` — active plan and assignment metadata.
+- `GET /api/v1/plans/active/schedule/` — ordered phases, weeks, weekdays,
+  workouts, nutrients, supplements, and weekly tallies.
+- `GET /api/v1/workouts/<id>/` — exercises plus today’s completion state.
+- `PUT`/`DELETE /api/v1/exercises/<id>/sets/<set_number>/completion/` — set
+  or clear one of today’s completed sets.
+- `PUT`/`DELETE /api/v1/weeks/<week_id>/workouts/<workout_id>/completion/` —
+  set or clear today’s workout completion and receive the updated week tally.
+
+The two `PUT` endpoints are idempotent; repeated calls leave completion set,
+and repeated `DELETE` calls leave it clear. Store JWTs only in the native
+platform’s secure credential store.
+
+The public OpenAPI contract and self-hosted documentation are available at
+`/api/v1/schema/`, `/api/v1/docs/`, and `/api/v1/redoc/`. The documentation is
+public; all fitness data endpoints remain authenticated.
+
 ## Notes
 
 - `DEBUG = True` and a checked-in `SECRET_KEY` in `config/settings.py` --
