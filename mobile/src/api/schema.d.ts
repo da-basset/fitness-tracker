@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/assignments/{assignment_id}/unassign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["assignments_unassign_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/logout/": {
         parameters: {
             query?: never;
@@ -60,6 +76,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clients/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clients_list"];
+        put?: never;
+        post: operations["clients_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{client_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clients_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exercises/{exercise_id}/sets/{set_number}/completion/": {
         parameters: {
             query?: never;
@@ -110,6 +158,256 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["me_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["plans_retrieve"];
+        put?: never;
+        post?: never;
+        delete: operations["plans_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/assign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_assign_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/exercises/{exercise_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        delete: operations["plans_exercises_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        patch: operations["plans_exercises_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/nutrients/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_nutrients_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/nutrients/{nutrient_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        delete: operations["plans_nutrients_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        patch: operations["plans_nutrients_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/phases/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_phases_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/phases/{phase_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        delete: operations["plans_phases_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        patch: operations["plans_phases_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/phases/{phase_id}/weeks/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_phases_weeks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/supplements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_supplements_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/supplements/{supplement_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        delete: operations["plans_supplements_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        patch: operations["plans_supplements_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/weeks/{week_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["plans_weeks_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["plans_weeks_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/workouts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_workouts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/workouts/{workout_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        delete: operations["plans_workouts_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Base for plan-scoped create/update/delete of one model. */
+        patch: operations["plans_workouts_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/workouts/{workout_id}/exercises/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_workouts_exercises_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/workouts/{workout_id}/exercises/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["plans_workouts_exercises_reorder_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/plans/active/": {
@@ -170,6 +468,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/trainers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["trainers_list"];
+        put?: never;
+        post: operations["trainers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trainers/{trainer_id}/plans/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["trainers_plans_list"];
+        put?: never;
+        post: operations["trainers_plans_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/weeks/{week_id}/workouts/{workout_id}/completion/": {
         parameters: {
             query?: never;
@@ -206,6 +536,125 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * @description New login for a Trainer or Client. Validation is the web form's
+         *     (username uniqueness, Django's password validators), so both surfaces
+         *     accept and reject the same accounts.
+         */
+        AccountCreateRequest: {
+            username: string;
+            password: string;
+            /** @default  */
+            first_name: string;
+            /** @default  */
+            last_name: string;
+            email?: string;
+        };
+        ActiveAssignment: {
+            id: number;
+            client_id: number;
+            /** Format: date-time */
+            assigned_at: string;
+            is_active: boolean;
+            trainer_id: number;
+            gym_id: number;
+        };
+        ActivePlan: {
+            id: number;
+            name: string;
+            description: string;
+            assignment: components["schemas"]["ActiveAssignment"];
+        };
+        ActivePlanRef: {
+            assignment_id: number;
+            plan_id: number;
+            plan_name: string;
+            /** Format: date-time */
+            assigned_at: string;
+        };
+        AssignRequestRequest: {
+            client_id: number;
+        };
+        Assignment: {
+            id: number;
+            plan_id: number;
+            plan_name: string;
+            client_id: number;
+            /** Format: date-time */
+            assigned_at: string;
+            is_active: boolean;
+        };
+        ClientDetail: {
+            user_id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            readonly name: string;
+            id: number;
+            trainer_id: number;
+            readonly trainer_name: string;
+            readonly active_plan: components["schemas"]["ActivePlanRef"] | null;
+            active_assignment: components["schemas"]["Assignment"] | null;
+            past_assignments: components["schemas"]["Assignment"][];
+            stats: components["schemas"]["ClientStats"] | null;
+            templates: components["schemas"]["PlanSummary"][];
+        };
+        ClientExercise: {
+            id: number;
+            segment: components["schemas"]["SegmentEnum"];
+            name: string;
+            sets_count: number | null;
+            reps_text: string;
+            rest_seconds: number | null;
+            time_text: string;
+            order: number;
+            completed_set_numbers: number[];
+        };
+        ClientStats: {
+            all_time_completed: number;
+            /** Format: date */
+            last_completed_at: string | null;
+        };
+        ClientSummary: {
+            user_id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            readonly name: string;
+            id: number;
+            trainer_id: number;
+            readonly trainer_name: string;
+            readonly active_plan: components["schemas"]["ActivePlanRef"] | null;
+        };
+        ClientWorkout: {
+            id: number;
+            name: string;
+            sub: string;
+            flavor: string;
+            color: string;
+            order: number;
+            /** Format: date */
+            date: string;
+            exercises: components["schemas"]["ClientExercise"][];
+            workout_completed: boolean;
+            /** Format: date-time */
+            started_at: string | null;
+            /** Format: date-time */
+            ended_at: string | null;
+        };
+        /**
+         * @description * `red` - Red
+         *     * `blue` - Blue
+         *     * `green` - Green
+         *     * `amber` - Amber
+         *     * `violet` - Violet
+         *     * `teal` - Teal
+         *     * `rose` - Rose
+         * @enum {string}
+         */
+        ColorEnum: "red" | "blue" | "green" | "amber" | "violet" | "teal" | "rose";
         Completion: {
             completed: boolean;
             week_tally?: components["schemas"]["WeekTally"];
@@ -214,12 +663,266 @@ export interface components {
             completed: boolean;
             week_tally?: components["schemas"]["WeekTallyRequest"];
         };
+        /** @description Same limits as the web editor's _validate_exercise_payload. */
+        Exercise: {
+            readonly id: number;
+            readonly workout_id: number;
+            segment: components["schemas"]["SegmentEnum"];
+            name: string;
+            sets_count?: number | null;
+            reps_text?: string;
+            rest_seconds?: number | null;
+            time_text?: string;
+            readonly order: number;
+            readonly is_custom: boolean;
+        };
+        /** @description Same limits as the web editor's _validate_exercise_payload. */
+        ExerciseRequest: {
+            segment: components["schemas"]["SegmentEnum"];
+            name: string;
+            sets_count?: number | null;
+            reps_text?: string;
+            rest_seconds?: number | null;
+            time_text?: string;
+        };
+        History: {
+            /** Format: date */
+            to: string;
+            workouts: components["schemas"]["HistoryWorkout"][];
+            sets_completed_by_date: {
+                [key: string]: number;
+            };
+            /** Format: date */
+            from: string;
+        };
+        HistoryWorkout: {
+            /** Format: date */
+            date: string;
+            workout: components["schemas"]["WorkoutSummary"];
+            week_id: number | null;
+            /** Format: date-time */
+            completed_at: string;
+            /** Format: date-time */
+            started_at: string | null;
+            /** Format: date-time */
+            ended_at: string | null;
+        };
         LogoutRequest: {
             refresh: string;
+        };
+        Me: {
+            id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            roles: components["schemas"]["RolesEnum"][];
+            client_id: number | null;
+            trainer_id: number | null;
+            gym_id: number | null;
+            owned_gym_ids: number[];
+            timezone: string;
+            /** Format: date */
+            today: string;
+        };
+        Note: {
+            id: number;
+            name: string;
+            amount: string;
+            timing: string;
+            notes: string;
+        };
+        Nutrient: {
+            readonly id: number;
+            name: string;
+            /** @description e.g. "180g/day" or "5g" */
+            amount?: string;
+            /** @description e.g. "Morning" or "Post-workout" */
+            timing?: string;
+            notes?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        NutrientRequest: {
+            name: string;
+            /** @description e.g. "180g/day" or "5g" */
+            amount?: string;
+            /** @description e.g. "Morning" or "Post-workout" */
+            timing?: string;
+            notes?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        OwningClient: {
+            id: number;
+            name: string;
+        };
+        /** @description Same limits as the web editor's _validate_exercise_payload. */
+        PatchedExerciseRequest: {
+            segment?: components["schemas"]["SegmentEnum"];
+            name?: string;
+            sets_count?: number | null;
+            reps_text?: string;
+            rest_seconds?: number | null;
+            time_text?: string;
         };
         PatchedMeUpdateRequest: {
             timezone?: string;
         };
+        PatchedNutrientRequest: {
+            name?: string;
+            /** @description e.g. "180g/day" or "5g" */
+            amount?: string;
+            /** @description e.g. "Morning" or "Post-workout" */
+            timing?: string;
+            notes?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        PatchedPhaseRequest: {
+            /** @description e.g. "Ramp-In", "Build", "Deload" */
+            title?: string;
+            /** @description May include simple HTML like <strong>. */
+            note?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        PatchedSupplementRequest: {
+            name?: string;
+            /** @description e.g. "180g/day" or "5g" */
+            amount?: string;
+            /** @description e.g. "Morning" or "Post-workout" */
+            timing?: string;
+            notes?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        /**
+         * @description A week's Mon-Sun schedule: weekday -> workout id, or null for rest.
+         *     Weekdays left out keep their current value.
+         */
+        PatchedWeekDaysRequest: {
+            days?: {
+                [key: string]: number | null;
+            };
+        };
+        PatchedWorkoutRequest: {
+            name?: string;
+            sub?: string;
+            flavor?: string;
+            color?: components["schemas"]["ColorEnum"];
+            /** Format: int64 */
+            order?: number;
+        };
+        Phase: {
+            readonly id: number;
+            /** @description e.g. "Ramp-In", "Build", "Deload" */
+            title: string;
+            /** @description May include simple HTML like <strong>. */
+            note?: string;
+            /** Format: int64 */
+            order?: number;
+            readonly number: number;
+            readonly weeks: components["schemas"]["Week"][];
+        };
+        PhaseRequest: {
+            /** @description e.g. "Ramp-In", "Build", "Deload" */
+            title: string;
+            /** @description May include simple HTML like <strong>. */
+            note?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        /** @description Everything an editor, preview or past-plan view needs in one read. */
+        PlanDetail: {
+            readonly id: number;
+            name: string;
+            /** @default  */
+            description: string;
+            readonly trainer_id: number;
+            readonly source_plan_id: number | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            is_template: boolean;
+            can_manage: boolean;
+            owning_client: components["schemas"]["OwningClient"] | null;
+            assignment: components["schemas"]["Assignment"] | null;
+            workouts: components["schemas"]["WorkoutDetail"][];
+            phases: components["schemas"]["Phase"][];
+            nutrients: components["schemas"]["Nutrient"][];
+            supplements: components["schemas"]["Supplement"][];
+            limits: components["schemas"]["PlanLimits"];
+        };
+        PlanLimits: {
+            max_phases: number;
+            max_weeks_per_phase: number;
+        };
+        PlanRef: {
+            id: number;
+            name: string;
+            description: string;
+        };
+        PlanSummary: {
+            readonly id: number;
+            name: string;
+            /** @default  */
+            description: string;
+            readonly trainer_id: number;
+            readonly source_plan_id: number | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        PlanSummaryRequest: {
+            name: string;
+            /** @default  */
+            description: string;
+        };
+        ReorderRequestRequest: {
+            order: number[];
+        };
+        /**
+         * @description * `owner` - owner
+         *     * `trainer` - trainer
+         *     * `client` - client
+         * @enum {string}
+         */
+        RolesEnum: "owner" | "trainer" | "client";
+        Schedule: {
+            /** Format: date */
+            date: string;
+            plan: components["schemas"]["PlanRef"];
+            phases: components["schemas"]["SchedulePhase"][];
+            nutrients: components["schemas"]["Note"][];
+            supplements: components["schemas"]["Note"][];
+        };
+        ScheduleDay: {
+            weekday: components["schemas"]["WeekdayEnum"];
+            workout: components["schemas"]["WorkoutSummary"] | null;
+        };
+        SchedulePhase: {
+            id: number;
+            title: string;
+            note: string;
+            order: number;
+            number: number;
+            weeks: components["schemas"]["ScheduleWeek"][];
+        };
+        ScheduleWeek: {
+            id: number;
+            order: number;
+            number: number;
+            label: string;
+            week_tally: components["schemas"]["WeekTally"];
+            days: components["schemas"]["ScheduleDay"][];
+        };
+        /**
+         * @description * `Main` - Main
+         *     * `Core` - Core
+         *     * `Cardio` - Cardio
+         *     * `Stretch` - Stretch
+         * @enum {string}
+         */
+        SegmentEnum: "Main" | "Core" | "Cardio" | "Stretch";
         /**
          * @description * `applied` - applied
          *     * `stale` - stale
@@ -228,6 +931,27 @@ export interface components {
          * @enum {string}
          */
         StatusEnum: "applied" | "stale" | "duplicate" | "rejected";
+        Supplement: {
+            readonly id: number;
+            name: string;
+            /** @description e.g. "180g/day" or "5g" */
+            amount?: string;
+            /** @description e.g. "Morning" or "Post-workout" */
+            timing?: string;
+            notes?: string;
+            /** Format: int64 */
+            order?: number;
+        };
+        SupplementRequest: {
+            name: string;
+            /** @description e.g. "180g/day" or "5g" */
+            amount?: string;
+            /** @description e.g. "Morning" or "Post-workout" */
+            timing?: string;
+            notes?: string;
+            /** Format: int64 */
+            order?: number;
+        };
         SyncRequestRequest: {
             events: {
                 [key: string]: unknown;
@@ -258,6 +982,32 @@ export interface components {
         TokenRefreshRequest: {
             refresh: string;
         };
+        Trainer: {
+            user_id: number;
+            username: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            readonly name: string;
+            id: number;
+            gym_id: number;
+            readonly client_count: number;
+        };
+        Week: {
+            id: number;
+            order: number;
+            number: number;
+            label: string;
+            readonly days: {
+                [key: string]: number | null;
+            };
+        };
+        WeekRequest: {
+            id: number;
+            order: number;
+            number: number;
+            label: string;
+        };
         WeekTally: {
             completed: number;
             total: number;
@@ -267,6 +1017,52 @@ export interface components {
             completed: number;
             total: number;
             week_complete: boolean;
+        };
+        /**
+         * @description * `Mon` - Mon
+         *     * `Tue` - Tue
+         *     * `Wed` - Wed
+         *     * `Thu` - Thu
+         *     * `Fri` - Fri
+         *     * `Sat` - Sat
+         *     * `Sun` - Sun
+         * @enum {string}
+         */
+        WeekdayEnum: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+        Workout: {
+            readonly id: number;
+            name: string;
+            sub?: string;
+            flavor?: string;
+            color?: components["schemas"]["ColorEnum"];
+            /** Format: int64 */
+            order?: number;
+        };
+        WorkoutDetail: {
+            readonly id: number;
+            name: string;
+            sub?: string;
+            flavor?: string;
+            color?: components["schemas"]["ColorEnum"];
+            /** Format: int64 */
+            order?: number;
+            readonly exercises: components["schemas"]["Exercise"][];
+        };
+        WorkoutRequest: {
+            name: string;
+            sub?: string;
+            flavor?: string;
+            color?: components["schemas"]["ColorEnum"];
+            /** Format: int64 */
+            order?: number;
+        };
+        WorkoutSummary: {
+            id: number;
+            name: string;
+            sub: string;
+            flavor: string;
+            color: string;
+            order: number;
         };
         WorkoutTimingRequest: {
             /** Format: date-time */
@@ -283,6 +1079,27 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    assignments_unassign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"];
+                };
+            };
+        };
+    };
     auth_logout_create: {
         parameters: {
             query?: never;
@@ -360,6 +1177,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TokenRefresh"];
+                };
+            };
+        };
+    };
+    clients_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientSummary"][];
+                };
+            };
+        };
+    };
+    clients_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AccountCreateRequest"];
+                "multipart/form-data": components["schemas"]["AccountCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientSummary"];
+                };
+            };
+        };
+    };
+    clients_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetail"];
                 };
             };
         };
@@ -451,9 +1333,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["History"];
                 };
             };
         };
@@ -472,9 +1352,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["Me"];
                 };
             };
         };
@@ -499,9 +1377,569 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+        };
+    };
+    plans_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDetail"];
+                };
+            };
+        };
+    };
+    plans_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Plan has been assigned. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_assign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssignRequestRequest"];
+                "multipart/form-data": components["schemas"]["AssignRequestRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"];
+                };
+            };
+        };
+    };
+    plans_exercises_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exercise_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_exercises_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exercise_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedExerciseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedExerciseRequest"];
+                "multipart/form-data": components["schemas"]["PatchedExerciseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exercise"];
+                };
+            };
+        };
+    };
+    plans_nutrients_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NutrientRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NutrientRequest"];
+                "multipart/form-data": components["schemas"]["NutrientRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Nutrient"];
+                };
+            };
+        };
+    };
+    plans_nutrients_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nutrient_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_nutrients_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nutrient_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedNutrientRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedNutrientRequest"];
+                "multipart/form-data": components["schemas"]["PatchedNutrientRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Nutrient"];
+                };
+            };
+        };
+    };
+    plans_phases_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhaseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PhaseRequest"];
+                "multipart/form-data": components["schemas"]["PhaseRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Phase"];
+                };
+            };
+        };
+    };
+    plans_phases_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                phase_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_phases_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                phase_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPhaseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPhaseRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPhaseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Phase"];
+                };
+            };
+        };
+    };
+    plans_phases_weeks_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                phase_id: number;
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Week"];
+                };
+            };
+        };
+    };
+    plans_supplements_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplementRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupplementRequest"];
+                "multipart/form-data": components["schemas"]["SupplementRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Supplement"];
+                };
+            };
+        };
+    };
+    plans_supplements_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                supplement_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_supplements_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                supplement_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSupplementRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSupplementRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSupplementRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Supplement"];
+                };
+            };
+        };
+    };
+    plans_weeks_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                week_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A phase needs at least one week. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_weeks_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                week_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedWeekDaysRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedWeekDaysRequest"];
+                "multipart/form-data": components["schemas"]["PatchedWeekDaysRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Week"];
+                };
+            };
+        };
+    };
+    plans_workouts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkoutRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WorkoutRequest"];
+                "multipart/form-data": components["schemas"]["WorkoutRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workout"];
+                };
+            };
+        };
+    };
+    plans_workouts_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                workout_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plans_workouts_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                workout_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedWorkoutRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedWorkoutRequest"];
+                "multipart/form-data": components["schemas"]["PatchedWorkoutRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workout"];
+                };
+            };
+        };
+    };
+    plans_workouts_exercises_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                workout_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExerciseRequest"];
+                "multipart/form-data": components["schemas"]["ExerciseRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exercise"];
+                };
+            };
+        };
+    };
+    plans_workouts_exercises_reorder_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+                workout_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReorderRequestRequest"];
+                "multipart/form-data": components["schemas"]["ReorderRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exercise"][];
                 };
             };
         };
@@ -520,9 +1958,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ActivePlan"];
                 };
             };
         };
@@ -544,9 +1980,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["Schedule"];
                 };
             };
         };
@@ -572,6 +2006,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SyncResponse"];
+                };
+            };
+        };
+    };
+    trainers_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Trainer"][];
+                };
+            };
+        };
+    };
+    trainers_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AccountCreateRequest"];
+                "multipart/form-data": components["schemas"]["AccountCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Trainer"];
+                };
+            };
+        };
+    };
+    trainers_plans_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trainer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanSummary"][];
+                };
+            };
+        };
+    };
+    trainers_plans_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trainer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanSummaryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PlanSummaryRequest"];
+                "multipart/form-data": components["schemas"]["PlanSummaryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanSummary"];
                 };
             };
         };
@@ -665,9 +2191,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ClientWorkout"];
                 };
             };
         };
