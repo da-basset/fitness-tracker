@@ -572,9 +572,6 @@ export interface components {
             /** Format: date-time */
             assigned_at: string;
         };
-        AssignRequestRequest: {
-            client_id: number;
-        };
         Assignment: {
             id: number;
             plan_id: number;
@@ -657,7 +654,7 @@ export interface components {
         ColorEnum: "red" | "blue" | "green" | "amber" | "violet" | "teal" | "rose";
         Completion: {
             completed: boolean;
-            week_tally?: components["schemas"]["WeekTally"];
+            week_tally: components["schemas"]["WeekTally"];
         };
         CompletionRequest: {
             completed: boolean;
@@ -669,12 +666,15 @@ export interface components {
             readonly workout_id: number;
             segment: components["schemas"]["SegmentEnum"];
             name: string;
-            sets_count?: number | null;
-            reps_text?: string;
-            rest_seconds?: number | null;
-            time_text?: string;
+            sets_count: number | null;
+            reps_text: string;
+            rest_seconds: number | null;
+            time_text: string;
             readonly order: number;
             readonly is_custom: boolean;
+        };
+        ExerciseOrderRequest: {
+            order: number[];
         };
         /** @description Same limits as the web editor's _validate_exercise_payload. */
         ExerciseRequest: {
@@ -736,12 +736,12 @@ export interface components {
             readonly id: number;
             name: string;
             /** @description e.g. "180g/day" or "5g" */
-            amount?: string;
+            amount: string;
             /** @description e.g. "Morning" or "Post-workout" */
-            timing?: string;
-            notes?: string;
+            timing: string;
+            notes: string;
             /** Format: int64 */
-            order?: number;
+            order: number;
         };
         NutrientRequest: {
             name: string;
@@ -819,9 +819,9 @@ export interface components {
             /** @description e.g. "Ramp-In", "Build", "Deload" */
             title: string;
             /** @description May include simple HTML like <strong>. */
-            note?: string;
+            note: string;
             /** Format: int64 */
-            order?: number;
+            order: number;
             readonly number: number;
             readonly weeks: components["schemas"]["Week"][];
         };
@@ -832,6 +832,9 @@ export interface components {
             note?: string;
             /** Format: int64 */
             order?: number;
+        };
+        PlanAssignRequest: {
+            client_id: number;
         };
         /** @description Everything an editor, preview or past-plan view needs in one read. */
         PlanDetail: {
@@ -876,9 +879,6 @@ export interface components {
             name: string;
             /** @default  */
             description: string;
-        };
-        ReorderRequestRequest: {
-            order: number[];
         };
         /**
          * @description * `owner` - owner
@@ -935,12 +935,12 @@ export interface components {
             readonly id: number;
             name: string;
             /** @description e.g. "180g/day" or "5g" */
-            amount?: string;
+            amount: string;
             /** @description e.g. "Morning" or "Post-workout" */
-            timing?: string;
-            notes?: string;
+            timing: string;
+            notes: string;
             /** Format: int64 */
-            order?: number;
+            order: number;
         };
         SupplementRequest: {
             name: string;
@@ -963,7 +963,7 @@ export interface components {
         SyncResult: {
             id: string;
             status: components["schemas"]["StatusEnum"];
-            errors?: {
+            errors: {
                 [key: string]: unknown;
             };
         };
@@ -1032,20 +1032,20 @@ export interface components {
         Workout: {
             readonly id: number;
             name: string;
-            sub?: string;
-            flavor?: string;
-            color?: components["schemas"]["ColorEnum"];
+            sub: string;
+            flavor: string;
+            color: components["schemas"]["ColorEnum"];
             /** Format: int64 */
-            order?: number;
+            order: number;
         };
         WorkoutDetail: {
             readonly id: number;
             name: string;
-            sub?: string;
-            flavor?: string;
-            color?: components["schemas"]["ColorEnum"];
+            sub: string;
+            flavor: string;
+            color: components["schemas"]["ColorEnum"];
             /** Format: int64 */
-            order?: number;
+            order: number;
             readonly exercises: components["schemas"]["Exercise"][];
         };
         WorkoutRequest: {
@@ -1441,9 +1441,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AssignRequestRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["AssignRequestRequest"];
-                "multipart/form-data": components["schemas"]["AssignRequestRequest"];
+                "application/json": components["schemas"]["PlanAssignRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PlanAssignRequest"];
+                "multipart/form-data": components["schemas"]["PlanAssignRequest"];
             };
         };
         responses: {
@@ -1928,9 +1928,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReorderRequestRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ReorderRequestRequest"];
-                "multipart/form-data": components["schemas"]["ReorderRequestRequest"];
+                "application/json": components["schemas"]["ExerciseOrderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExerciseOrderRequest"];
+                "multipart/form-data": components["schemas"]["ExerciseOrderRequest"];
             };
         };
         responses: {

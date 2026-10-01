@@ -362,13 +362,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssignRequestRequest'
+              $ref: '#/components/schemas/PlanAssignRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/AssignRequestRequest'
+              $ref: '#/components/schemas/PlanAssignRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AssignRequestRequest'
+              $ref: '#/components/schemas/PlanAssignRequest'
         required: true
       security:
       - jwtAuth: []
@@ -937,13 +937,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReorderRequestRequest'
+              $ref: '#/components/schemas/ExerciseOrderRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ReorderRequestRequest'
+              $ref: '#/components/schemas/ExerciseOrderRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ReorderRequestRequest'
+              $ref: '#/components/schemas/ExerciseOrderRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1314,13 +1314,6 @@ components:
       - assignment_id
       - plan_id
       - plan_name
-    AssignRequestRequest:
-      type: object
-      properties:
-        client_id:
-          type: integer
-      required:
-      - client_id
     Assignment:
       type: object
       properties:
@@ -1560,6 +1553,7 @@ components:
           $ref: '#/components/schemas/WeekTally'
       required:
       - completed
+      - week_tally
     CompletionRequest:
       type: object
       properties:
@@ -1611,8 +1605,21 @@ components:
       - is_custom
       - name
       - order
+      - reps_text
+      - rest_seconds
       - segment
+      - sets_count
+      - time_text
       - workout_id
+    ExerciseOrderRequest:
+      type: object
+      properties:
+        order:
+          type: array
+          items:
+            type: integer
+      required:
+      - order
     ExerciseRequest:
       type: object
       description: Same limits as the web editor's _validate_exercise_payload.
@@ -1794,8 +1801,12 @@ components:
           minimum: 0
           format: int64
       required:
+      - amount
       - id
       - name
+      - notes
+      - order
+      - timing
     NutrientRequest:
       type: object
       properties:
@@ -1982,7 +1993,9 @@ components:
           readOnly: true
       required:
       - id
+      - note
       - number
+      - order
       - title
       - weeks
     PhaseRequest:
@@ -2003,6 +2016,13 @@ components:
           format: int64
       required:
       - title
+    PlanAssignRequest:
+      type: object
+      properties:
+        client_id:
+          type: integer
+      required:
+      - client_id
     PlanDetail:
       type: object
       description: Everything an editor, preview or past-plan view needs in one read.
@@ -2061,6 +2081,7 @@ components:
       - assignment
       - can_manage
       - created_at
+      - description
       - id
       - is_template
       - limits
@@ -2120,6 +2141,7 @@ components:
           readOnly: true
       required:
       - created_at
+      - description
       - id
       - name
       - source_plan_id
@@ -2136,15 +2158,6 @@ components:
           default: ''
       required:
       - name
-    ReorderRequestRequest:
-      type: object
-      properties:
-        order:
-          type: array
-          items:
-            type: integer
-      required:
-      - order
     RolesEnum:
       enum:
       - owner
@@ -2290,8 +2303,12 @@ components:
           minimum: 0
           format: int64
       required:
+      - amount
       - id
       - name
+      - notes
+      - order
+      - timing
     SupplementRequest:
       type: object
       properties:
@@ -2347,6 +2364,7 @@ components:
           type: object
           additionalProperties: {}
       required:
+      - errors
       - id
       - status
     TokenObtainPair:
@@ -2534,8 +2552,12 @@ components:
           minimum: 0
           format: int64
       required:
+      - color
+      - flavor
       - id
       - name
+      - order
+      - sub
     WorkoutDetail:
       type: object
       properties:
@@ -2564,9 +2586,13 @@ components:
             $ref: '#/components/schemas/Exercise'
           readOnly: true
       required:
+      - color
       - exercises
+      - flavor
       - id
       - name
+      - order
+      - sub
     WorkoutRequest:
       type: object
       properties:

@@ -37,8 +37,25 @@ export async function login(username: string, password: string): Promise<LoginRe
   if (!result.data) return result.response.status === 401 ? 'invalid' : 'unreachable';
   setAccessToken(result.data.access);
   await setRefreshToken(result.data.refresh);
-  emitAuthChange(true);
+  // The caller announces the sign-in once local data is ready for this user.
   return 'ok';
+}
+
+export function announceSignedIn() {
+  emitAuthChange(true);
+}
+
+/** The user id inside a SimpleJWT access token, read without a network call. */
+export function currentUserId(): number | null {
+  const token = getAccessToken();
+  if (!token) return null;
+  try {
+    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=')));
+    return typeof claims.user_id === 'number' ? claims.user_id : Number(claims.user_id) || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function logout() {
