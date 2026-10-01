@@ -25,13 +25,20 @@ function emitAuthChange(signedIn: boolean) {
   listeners.forEach((listener) => listener(signedIn));
 }
 
-export async function login(username: string, password: string) {
-  const { data, error } = await authClient.POST('/api/v1/auth/token/', { body: { username, password } });
-  if (error || !data) return false;
-  setAccessToken(data.access);
-  await setRefreshToken(data.refresh);
+export type LoginResult = 'ok' | 'invalid' | 'unreachable';
+
+export async function login(username: string, password: string): Promise<LoginResult> {
+  let result;
+  try {
+    result = await authClient.POST('/api/v1/auth/token/', { body: { username, password } });
+  } catch {
+    return 'unreachable';
+  }
+  if (!result.data) return result.response.status === 401 ? 'invalid' : 'unreachable';
+  setAccessToken(result.data.access);
+  await setRefreshToken(result.data.refresh);
   emitAuthChange(true);
-  return true;
+  return 'ok';
 }
 
 export async function logout() {

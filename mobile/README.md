@@ -1,56 +1,49 @@
-# Welcome to your Expo app 👋
+# Fitness Tracker iOS app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Client-facing Expo app (Expo Router, TypeScript) for the Django native API at
+`/api/v1/`. Trainers and owners keep using the web app.
 
-## Get started
+## Run it locally on your iPhone (Expo Go)
 
-1. Install dependencies
+You need the Expo Go app on the phone, and the phone and Mac on the same Wi-Fi.
+
+1. **Start the API on all interfaces** (from the repo root, inside your venv).
+   The phone can't reach `127.0.0.1`, so allow your Mac's LAN IP:
 
    ```bash
-   npm install
+   IP=$(ipconfig getifaddr en0)
+   DJANGO_ALLOWED_HOSTS="localhost,127.0.0.1,$IP" python3 manage.py runserver 0.0.0.0:8000
    ```
 
-2. Start the app
+2. **Point the app at it** (in `mobile/`):
 
    ```bash
+   echo "EXPO_PUBLIC_API_BASE_URL=http://$(ipconfig getifaddr en0):8000" > .env.local
+   npm install
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Scan the QR code with the iPhone camera to open it in Expo Go. Sign in with
+   any Django user (e.g. one from `createsuperuser`).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Restart `npx expo start` after changing `.env.local`. Env vars are inlined
+at bundle time.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+If your Wi-Fi blocks device-to-device traffic, use `npx expo start --tunnel`
+for the app and expose the API with a tunnel of your own.
 
-## Get a fresh project
+## API types
 
-When you're ready, run:
+The client is typed from the Django OpenAPI schema. After changing the API:
 
 ```bash
-npm run reset-project
+npm run api:schema   # needs the Django venv active
+npm run api:types
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Checks
 
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm run typecheck
+npx expo lint
+```
