@@ -35,15 +35,15 @@ from training.services import clone_plan_for_client
 from .manage_serializers import (
     AccountCreateSerializer,
     AssignmentSerializer,
-    AssignRequestSerializer,
     ClientDetailSerializer,
     ClientSummarySerializer,
+    ExerciseOrderSerializer,
     ExerciseSerializer,
     NutrientSerializer,
     PhaseSerializer,
+    PlanAssignSerializer,
     PlanDetailSerializer,
     PlanSummarySerializer,
-    ReorderRequestSerializer,
     SupplementSerializer,
     TrainerSerializer,
     WeekDaysSerializer,
@@ -230,10 +230,10 @@ class PlanDetailView(APIView):
 
 
 class PlanAssignView(APIView):
-    @extend_schema(request=AssignRequestSerializer, responses={201: AssignmentSerializer})
+    @extend_schema(request=PlanAssignSerializer, responses={201: AssignmentSerializer})
     def post(self, request, plan_id):
         template = managed_plan(request.user, plan_id)
-        serializer = AssignRequestSerializer(data=request.data)
+        serializer = PlanAssignSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         client = Client.objects.filter(pk=serializer.validated_data["client_id"], trainer=template.trainer).first()
         if client is None:
@@ -323,11 +323,11 @@ class ExerciseCreateView(APIView):
 
 
 class ExerciseReorderView(APIView):
-    @extend_schema(request=ReorderRequestSerializer, responses={200: ExerciseSerializer(many=True)})
+    @extend_schema(request=ExerciseOrderSerializer, responses={200: ExerciseSerializer(many=True)})
     def post(self, request, plan_id, workout_id):
         plan = managed_plan(request.user, plan_id)
         workout = get_object_or_404(Workout, pk=workout_id, plan=plan)
-        serializer = ReorderRequestSerializer(data=request.data)
+        serializer = ExerciseOrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         ordered_ids = serializer.validated_data["order"]
         exercises = {exercise.id: exercise for exercise in workout.exercises.all()}

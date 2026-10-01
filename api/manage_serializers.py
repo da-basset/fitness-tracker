@@ -126,11 +126,11 @@ class ClientDetailSerializer(ClientSummarySerializer):
     templates = PlanSummarySerializer(many=True)
 
 
-class AssignRequestSerializer(serializers.Serializer):
+class PlanAssignSerializer(serializers.Serializer):
     client_id = serializers.IntegerField()
 
 
-class ReorderRequestSerializer(serializers.Serializer):
+class ExerciseOrderSerializer(serializers.Serializer):
     order = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
 
 
