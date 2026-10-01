@@ -1,7 +1,12 @@
 # Fitness Tracker iOS app
 
-Client-facing Expo app (Expo Router, TypeScript) for the Django native API at
-`/api/v1/`. Trainers and owners keep using the web app.
+Expo app (Expo Router, TypeScript) for the Django native API at `/api/v1/`.
+Clients log workouts, including offline; trainers and gym owners manage
+clients and plans.
+
+**Developing on a Mac? Start with [DEVELOP.md](DEVELOP.md)**: iOS Simulator
+setup, the two-terminal routine, demo logins for each role, and fixes for
+common errors.
 
 ## Run it locally on your iPhone (Expo Go)
 
