@@ -112,14 +112,23 @@ const authMiddleware: Middleware = {
     pending.set(id, request.clone());
     return request;
   },
+  // Return undefined to keep the response. openapi-fetch checks a returned
+  // value with `instanceof Response`, and on React Native fetch() resolves
+  // to a different Response class than the global one, so handing back the
+  // original (or a raw fetch result) throws.
   async onResponse({ id, response }) {
     const original = pending.get(id);
     pending.delete(id);
-    if (response.status !== 401 || !original) return response;
+    if (response.status !== 401 || !original) return undefined;
     const token = await refreshAccessToken();
-    if (!token) return response;
+    if (!token) return undefined;
     original.headers.set('Authorization', `Bearer ${token}`);
-    return fetch(original);
+    const retried = await fetch(original);
+    return new Response(await retried.text(), {
+      status: retried.status,
+      statusText: retried.statusText,
+      headers: retried.headers,
+    });
   },
   onError({ id }) {
     pending.delete(id);

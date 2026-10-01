@@ -10,8 +10,16 @@ export async function call<T>(promise: ApiCall<T>): Promise<Fetched<T>> {
   let result;
   try {
     result = await promise;
-  } catch {
-    return { ok: false, kind: 'offline' };
+  } catch (error) {
+    // fetch rejects with a TypeError only when the request never got an
+    // answer. Anything else is a bug in the app, and calling it "offline"
+    // would hide it.
+    if (error instanceof TypeError && /network request failed|failed to fetch|load failed/i.test(error.message)) {
+      return { ok: false, kind: 'offline' };
+    }
+    if (__DEV__) console.error('[api] request threw', error);
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, kind: 'error', status: 0, fields: {}, message: `Something went wrong: ${message}` };
   }
   if (result.response.ok) return { ok: true, data: result.data as T };
   const fields = fieldErrors(result.error);

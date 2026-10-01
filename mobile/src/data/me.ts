@@ -1,3 +1,5 @@
+import { createContext, use } from 'react';
+
 import { api } from '@/api/client';
 import type { Me } from '@/api/types';
 
@@ -20,8 +22,21 @@ async function fetchMe() {
   return result;
 }
 
-export function useMe() {
+/** Loads and refreshes the account; only the app shell should call this. */
+export function useMeResource() {
   return useResource<Me>(ME_KEY, fetchMe);
+}
+
+/**
+ * The app shell provides the account before any signed-in screen renders,
+ * so roles (and the tabs they decide) are known on the very first frame.
+ */
+export const MeContext = createContext<ReturnType<typeof useMeResource> | null>(null);
+
+export function useMe() {
+  const value = use(MeContext);
+  if (!value?.data) throw new Error('useMe must be used inside the signed-in app shell');
+  return { ...value, data: value.data };
 }
 
 export function hasRole(me: Me | undefined, role: Me['roles'][number]) {
