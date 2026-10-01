@@ -3,12 +3,13 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from accounts.models import Client, Trainer
 from accounts.permissions import can_manage_trainer
 
+from . import completions
+from .completions import user_today
 from .forms import NutrientForm, PhaseForm, PlanForm, SupplementForm, WorkoutForm
 from .models import (
     MAX_PHASES,
@@ -189,7 +190,7 @@ def _workout_payload(workout, client):
     completed = {}
     workout_completed = False
     if client is not None:
-        today = timezone.localdate()
+        today = user_today(client.user)
         completions = CompletedSet.objects.filter(client=client, log_date=today, exercise__in=exercises)
         for c in completions:
             completed.setdefault(str(c.exercise_id), []).append(c.set_number)
@@ -209,29 +210,21 @@ def _workout_payload(workout, client):
 
 
 def _toggle_set(client, exercise, set_number):
-    today = timezone.localdate()
-    existing = CompletedSet.objects.filter(
+    today = user_today(client.user)
+    completed = not CompletedSet.objects.filter(
         client=client, exercise=exercise, log_date=today, set_number=set_number
-    ).first()
-    if existing:
-        existing.delete()
-        return {"completed": False}
-    CompletedSet.objects.create(client=client, exercise=exercise, log_date=today, set_number=set_number)
-    return {"completed": True}
+    ).exists()
+    completions.set_completion(client, exercise, set_number, today, completed)
+    return {"completed": completed}
 
 
 def _toggle_workout_complete(client, workout, week):
-    today = timezone.localdate()
-    existing = WorkoutCompletion.objects.filter(client=client, log_date=today, workout=workout).first()
-    if existing:
-        existing.delete()
-        completed = False
-    else:
-        WorkoutCompletion.objects.create(client=client, log_date=today, workout=workout, week=week)
-        completed = True
+    today = user_today(client.user)
+    completed = not WorkoutCompletion.objects.filter(client=client, log_date=today, workout=workout).exists()
+    completions.workout_completion(client, workout, today, completed, week=week)
     response = {"completed": completed}
     if week is not None:
-        response["week_tally"] = week.week_tally(client)
+        response["week_tally"] = week.week_tally(client, on_date=today)
     return response
 
 

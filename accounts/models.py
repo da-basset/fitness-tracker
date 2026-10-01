@@ -67,6 +67,10 @@ class UserProfile(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
     )
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, default=THEME_LIGHT)
+    # IANA zone name (e.g. "America/Chicago"). Decides which calendar day
+    # "today" is for this user's logging, so a set checked at 11pm in Denver
+    # lands on that day rather than the server's. See training.dates.
+    timezone = models.CharField(max_length=64, default=settings.TIME_ZONE)
 
     def __str__(self):
         return f"{self.user}'s profile"

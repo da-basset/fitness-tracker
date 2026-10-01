@@ -300,15 +300,22 @@ class Week(models.Model):
     def days_per_week(self):
         return self.days.exclude(workout=None).count()
 
-    def week_tally(self, client):
+    def week_tally(self, client, on_date=None):
         """How many of this week's workouts the given client has marked
         complete (via WorkoutCompletion) within the current Mon-Sun
         calendar week. Powers the tally badge and "week complete" stamp on
         the Physical Training page. Each workout tracks its own completed
         state independently (see WorkoutCompletion's docstring), so this
         is a straight count of completion rows -- marking two different
-        workouts complete the same day legitimately counts as 2."""
-        today = timezone.localdate()
+        workouts complete the same day legitimately counts as 2.
+
+        on_date picks which Mon-Sun calendar week to count; it defaults to
+        "today" in the client's own time zone."""
+        if on_date is None:
+            from .completions import user_today  # avoid a models <-> completions import cycle
+
+            on_date = user_today(client.user)
+        today = on_date
         week_start = today - timedelta(days=today.weekday())
         week_end = week_start + timedelta(days=6)
         completed = WorkoutCompletion.objects.filter(
@@ -401,6 +408,10 @@ class WorkoutCompletion(models.Model):
     )
     log_date = models.DateField(default=timezone.localdate)
     completed_at = models.DateTimeField(auto_now_add=True)
+    # Optional workout timing reported by the native app (needed to write a
+    # real workout to Apple Health). Null for web check-offs.
+    started_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ("client", "log_date", "workout")
@@ -408,3 +419,37 @@ class WorkoutCompletion(models.Model):
 
     def __str__(self):
         return f"{self.client} completed {self.workout} on {self.log_date}"
+
+
+class SyncEvent(models.Model):
+    """One completion change (set or workout, on or off) received from a
+    client, kept so that (a) replaying an offline batch is idempotent --
+    event_id is generated on the device -- and (b) conflicting changes to
+    the same target resolve last-write-wins by occurred_at, the time the
+    user actually tapped, not when the request arrived.
+
+    target_key identifies what the event changes, e.g. "set:12:3:2026-09-30"
+    or "workout:4:2026-09-30". Every write path (web toggles, API PUT/DELETE,
+    and /api/v1/sync/) records one row, so an old offline event can never
+    undo a newer online change."""
+
+    STATUS_APPLIED = "applied"
+    STATUS_STALE = "stale"
+    STATUS_CHOICES = [(STATUS_APPLIED, "Applied"), (STATUS_STALE, "Stale")]
+
+    client = models.ForeignKey("accounts.Client", on_delete=models.CASCADE, related_name="sync_events")
+    event_id = models.UUIDField()
+    event_type = models.CharField(max_length=32)
+    target_key = models.CharField(max_length=120)
+    occurred_at = models.DateTimeField()
+    received_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["client", "event_id"], name="unique_sync_event_per_client"),
+        ]
+        indexes = [models.Index(fields=["client", "target_key", "-occurred_at"], name="sync_target_latest")]
+
+    def __str__(self):
+        return f"{self.client} {self.event_type} {self.target_key} ({self.status})"

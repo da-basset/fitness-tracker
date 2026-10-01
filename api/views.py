@@ -1,9 +1,11 @@
 """JWT-only native-client API. Browser endpoints stay in ``training.views``."""
 
+from datetime import date, timedelta
+
+from django.conf import settings
 from django.http import Http404
-from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
@@ -11,10 +13,45 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from accounts.models import Client
+from accounts.models import Client, UserProfile
+from training import completions
+from training.completions import is_future_date, user_today
 from training.models import CompletedSet, Exercise, PlanAssignment, Week, WeekDay, Workout, WorkoutCompletion
 
-from .serializers import CompletionSerializer, LogoutSerializer
+from .serializers import (
+    CompletionSerializer,
+    LogoutSerializer,
+    MeUpdateSerializer,
+    SyncEventSerializer,
+    SyncRequestSerializer,
+    SyncResponseSerializer,
+    WorkoutTimingSerializer,
+)
+
+DATE_PARAM = OpenApiParameter(
+    "date",
+    OpenApiTypes.DATE,
+    description="The user's local calendar day (YYYY-MM-DD). Defaults to today in the user's time zone.",
+)
+MAX_HISTORY_DAYS = 366
+
+
+def parse_date(value, field):
+    try:
+        return date.fromisoformat(value)
+    except (TypeError, ValueError) as exc:
+        raise ValidationError({field: ["Use YYYY-MM-DD."]}) from exc
+
+
+def requested_date(request):
+    """?date= if given (validated, not in the future), else the user's today."""
+    raw = request.query_params.get("date")
+    if raw is None:
+        return user_today(request.user)
+    value = parse_date(raw, "date")
+    if is_future_date(request.user, value):
+        raise ValidationError({"date": ["Cannot be in the future."]})
+    return value
 
 
 def active_context(user):
@@ -51,11 +88,11 @@ def workout_summary(workout):
     }
 
 
-def tally_payload(week, client):
-    return week.week_tally(client)
+def tally_payload(week, client, on_date):
+    return week.week_tally(client, on_date=on_date)
 
 
-def schedule_payload(plan, client):
+def schedule_payload(plan, client, on_date):
     phases = []
     weekday_order = {name: index for index, (name, _) in enumerate(WeekDay.WEEKDAYS)}
     for phase in plan.phases.prefetch_related("weeks__days__workout").all():
@@ -68,7 +105,7 @@ def schedule_payload(plan, client):
                     "order": week.order,
                     "number": week.global_number(),
                     "label": week.label(),
-                    "week_tally": tally_payload(week, client),
+                    "week_tally": tally_payload(week, client, on_date),
                     "days": [
                         {
                             "weekday": day.weekday,
@@ -89,6 +126,7 @@ def schedule_payload(plan, client):
             }
         )
     return {
+        "date": on_date.isoformat(),
         "plan": {"id": plan.id, "name": plan.name, "description": plan.description},
         "phases": phases,
         "nutrients": note_payload(plan.nutrients.all()),
@@ -111,7 +149,20 @@ class LogoutView(APIView):
 class MeView(APIView):
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request):
-        user = request.user
+        return Response(self.payload(request.user))
+
+    @extend_schema(request=MeUpdateSerializer, responses={200: OpenApiTypes.OBJECT})
+    def patch(self, request):
+        serializer = MeUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.timezone = serializer.validated_data["timezone"]
+        profile.save(update_fields=["timezone"])
+        request.user.profile = profile
+        return Response(self.payload(request.user))
+
+    @staticmethod
+    def payload(user):
         roles = []
         if user.owned_gyms.exists():
             roles.append("owner")
@@ -121,20 +172,21 @@ class MeView(APIView):
             roles.append("trainer")
         if client:
             roles.append("client")
-        return Response(
-            {
-                "id": user.id,
-                "username": user.get_username(),
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "email": user.email,
-                "roles": roles,
-                "client_id": client.id if client else None,
-                "trainer_id": trainer.id if trainer else None,
-                "gym_id": (client.trainer.gym_id if client else trainer.gym_id if trainer else None),
-                "owned_gym_ids": list(user.owned_gyms.values_list("id", flat=True)),
-            }
-        )
+        profile = UserProfile.objects.filter(user=user).first()
+        return {
+            "id": user.id,
+            "username": user.get_username(),
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "roles": roles,
+            "client_id": client.id if client else None,
+            "trainer_id": trainer.id if trainer else None,
+            "gym_id": (client.trainer.gym_id if client else trainer.gym_id if trainer else None),
+            "owned_gym_ids": list(user.owned_gyms.values_list("id", flat=True)),
+            "timezone": profile.timezone if profile else settings.TIME_ZONE,
+            "today": user_today(user).isoformat(),
+        }
 
 
 class ActivePlanView(APIView):
@@ -160,28 +212,31 @@ class ActivePlanView(APIView):
 
 
 class ActiveScheduleView(APIView):
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(parameters=[DATE_PARAM], responses={200: OpenApiTypes.OBJECT})
     def get(self, request):
         client, assignment = active_context(request.user)
-        return Response(schedule_payload(assignment.plan, client))
+        return Response(schedule_payload(assignment.plan, client, requested_date(request)))
 
 
 class WorkoutView(APIView):
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(parameters=[DATE_PARAM], responses={200: OpenApiTypes.OBJECT})
     def get(self, request, workout_id):
         client, assignment = active_context(request.user)
+        on_date = requested_date(request)
         try:
             workout = Workout.objects.prefetch_related("exercises").get(pk=workout_id, plan=assignment.plan)
         except Workout.DoesNotExist as exc:
             raise Http404 from exc
         exercises = list(workout.exercises.all())
-        completed = CompletedSet.objects.filter(client=client, exercise__in=exercises, log_date=timezone.localdate())
+        completed = CompletedSet.objects.filter(client=client, exercise__in=exercises, log_date=on_date)
         completed_by_exercise = {}
         for completion in completed:
             completed_by_exercise.setdefault(completion.exercise_id, []).append(completion.set_number)
+        completion = WorkoutCompletion.objects.filter(client=client, workout=workout, log_date=on_date).first()
         return Response(
             {
                 **workout_summary(workout),
+                "date": on_date.isoformat(),
                 "exercises": [
                     {
                         "id": exercise.id,
@@ -196,18 +251,18 @@ class WorkoutView(APIView):
                     }
                     for exercise in exercises
                 ],
-                "workout_completed": WorkoutCompletion.objects.filter(
-                    client=client, workout=workout, log_date=timezone.localdate()
-                ).exists(),
+                "workout_completed": completion is not None,
+                "started_at": completion.started_at if completion else None,
+                "ended_at": completion.ended_at if completion else None,
             }
         )
 
 
 class SetCompletionView(GenericAPIView):
     serializer_class = CompletionSerializer
-    @extend_schema(responses={200: CompletionSerializer, 400: OpenApiResponse(description="Invalid set number.")})
-    def put(self, request, exercise_id, set_number):
-        client, assignment = active_context(request.user)
+
+    def exercise(self, user, exercise_id, set_number):
+        client, assignment = active_context(user)
         try:
             exercise = Exercise.objects.get(pk=exercise_id, workout__plan=assignment.plan)
         except Exercise.DoesNotExist as exc:
@@ -215,53 +270,163 @@ class SetCompletionView(GenericAPIView):
         maximum = exercise.sets_count or 1
         if set_number < 1 or set_number > maximum:
             raise ValidationError({"set_number": [f"Must be between 1 and {maximum} for this exercise."]})
-        CompletedSet.objects.get_or_create(
-            client=client, exercise=exercise, log_date=timezone.localdate(), set_number=set_number
-        )
+        return client, exercise
+
+    @extend_schema(
+        parameters=[DATE_PARAM],
+        responses={200: CompletionSerializer, 400: OpenApiResponse(description="Invalid set number.")},
+    )
+    def put(self, request, exercise_id, set_number):
+        client, exercise = self.exercise(request.user, exercise_id, set_number)
+        completions.set_completion(client, exercise, set_number, requested_date(request), True)
         return Response({"completed": True})
 
-    @extend_schema(responses={200: CompletionSerializer, 400: OpenApiResponse(description="Invalid set number.")})
+    @extend_schema(
+        parameters=[DATE_PARAM],
+        responses={200: CompletionSerializer, 400: OpenApiResponse(description="Invalid set number.")},
+    )
     def delete(self, request, exercise_id, set_number):
-        client, assignment = active_context(request.user)
-        try:
-            exercise = Exercise.objects.get(pk=exercise_id, workout__plan=assignment.plan)
-        except Exercise.DoesNotExist as exc:
-            raise Http404 from exc
-        maximum = exercise.sets_count or 1
-        if set_number < 1 or set_number > maximum:
-            raise ValidationError({"set_number": [f"Must be between 1 and {maximum} for this exercise."]})
-        CompletedSet.objects.filter(
-            client=client, exercise=exercise, log_date=timezone.localdate(), set_number=set_number
-        ).delete()
+        client, exercise = self.exercise(request.user, exercise_id, set_number)
+        completions.set_completion(client, exercise, set_number, requested_date(request), False)
         return Response({"completed": False})
 
 
 class WorkoutCompletionView(GenericAPIView):
     serializer_class = CompletionSerializer
-    @extend_schema(responses={200: CompletionSerializer, 400: OpenApiResponse(description="Workout is not scheduled in week.")})
-    def put(self, request, week_id, workout_id):
-        client, _, week, workout = self.context(request.user, week_id, workout_id)
-        WorkoutCompletion.objects.get_or_create(
-            client=client, workout=workout, log_date=timezone.localdate(), defaults={"week": week}
-        )
-        return Response({"completed": True, "week_tally": tally_payload(week, client)})
 
     @extend_schema(
-        responses={200: CompletionSerializer, 400: OpenApiResponse(description="Workout is not scheduled in week.")}
+        parameters=[DATE_PARAM],
+        request=WorkoutTimingSerializer,
+        responses={200: CompletionSerializer, 400: OpenApiResponse(description="Workout is not scheduled in week.")},
+    )
+    def put(self, request, week_id, workout_id):
+        client, week, workout = workout_context(request.user, week_id, workout_id)
+        timing = WorkoutTimingSerializer(data=request.data or {})
+        timing.is_valid(raise_exception=True)
+        on_date = requested_date(request)
+        completions.workout_completion(client, workout, on_date, True, week=week, **timing.validated_data)
+        return Response({"completed": True, "week_tally": tally_payload(week, client, on_date)})
+
+    @extend_schema(
+        parameters=[DATE_PARAM],
+        responses={200: CompletionSerializer, 400: OpenApiResponse(description="Workout is not scheduled in week.")},
     )
     def delete(self, request, week_id, workout_id):
-        client, _, week, workout = self.context(request.user, week_id, workout_id)
-        WorkoutCompletion.objects.filter(client=client, workout=workout, log_date=timezone.localdate()).delete()
-        return Response({"completed": False, "week_tally": tally_payload(week, client)})
+        client, week, workout = workout_context(request.user, week_id, workout_id)
+        on_date = requested_date(request)
+        completions.workout_completion(client, workout, on_date, False, week=week)
+        return Response({"completed": False, "week_tally": tally_payload(week, client, on_date)})
+
+
+def workout_context(user, week_id, workout_id, require_scheduled=True):
+    client, assignment = active_context(user)
+    try:
+        workout = Workout.objects.get(pk=workout_id, plan=assignment.plan)
+        week = Week.objects.get(pk=week_id, phase__plan=assignment.plan) if week_id is not None else None
+    except (Week.DoesNotExist, Workout.DoesNotExist) as exc:
+        raise Http404 from exc
+    if require_scheduled and week is not None and not WeekDay.objects.filter(week=week, workout=workout).exists():
+        raise ValidationError({"workout_id": ["This workout is not scheduled in this week."]})
+    return client, week, workout
+
+
+class HistoryView(APIView):
+    """Finished workouts between two dates (inclusive), newest first, with a
+    count of checked sets per day -- the basis for history/streak screens."""
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("from", OpenApiTypes.DATE, required=True),
+            OpenApiParameter("to", OpenApiTypes.DATE, required=True),
+        ],
+        responses={200: OpenApiTypes.OBJECT},
+    )
+    def get(self, request):
+        client, _ = active_context(request.user)
+        start = parse_date(request.query_params.get("from"), "from")
+        end = parse_date(request.query_params.get("to"), "to")
+        if end < start:
+            raise ValidationError({"to": ["Must not be before from."]})
+        if end - start > timedelta(days=MAX_HISTORY_DAYS):
+            raise ValidationError({"to": [f"Range may span at most {MAX_HISTORY_DAYS} days."]})
+        rows = WorkoutCompletion.objects.filter(client=client, log_date__range=(start, end)).select_related("workout")
+        set_counts = {}
+        for log_date in CompletedSet.objects.filter(client=client, log_date__range=(start, end)).values_list(
+            "log_date", flat=True
+        ):
+            set_counts[log_date] = set_counts.get(log_date, 0) + 1
+        return Response(
+            {
+                "from": start.isoformat(),
+                "to": end.isoformat(),
+                "workouts": [
+                    {
+                        "date": row.log_date.isoformat(),
+                        "workout": workout_summary(row.workout),
+                        "week_id": row.week_id,
+                        "completed_at": row.completed_at,
+                        "started_at": row.started_at,
+                        "ended_at": row.ended_at,
+                    }
+                    for row in rows
+                ],
+                "sets_completed_by_date": {d.isoformat(): n for d, n in sorted(set_counts.items(), reverse=True)},
+            }
+        )
+
+
+class SyncView(APIView):
+    """Apply a batch of queued offline changes.
+
+    Each event gets its own result: ``applied``; ``duplicate`` (this id was
+    already received -- safe to drop from the device queue); ``stale`` (a
+    newer change to the same set/workout/day already won); or ``rejected``
+    with ``errors`` (bad input or not part of the active plan -- retrying
+    won't help). Every status except a network failure means the device can
+    remove the event from its queue."""
+
+    @extend_schema(request=SyncRequestSerializer, responses={200: SyncResponseSerializer})
+    def post(self, request):
+        batch = SyncRequestSerializer(data=request.data)
+        batch.is_valid(raise_exception=True)
+        client, assignment = active_context(request.user)
+        results, valid = {}, []
+        for index, raw in enumerate(batch.validated_data["events"]):
+            event = SyncEventSerializer(data=raw)
+            key = str(raw.get("id", f"index:{index}"))
+            if not event.is_valid():
+                results[index] = {"id": key, "status": "rejected", "errors": event.errors}
+                continue
+            valid.append((index, event.validated_data))
+        # Apply in the order things happened on the device.
+        for index, data in sorted(valid, key=lambda item: item[1]["occurred_at"]):
+            results[index] = {"id": str(data["id"]), **self.apply(request.user, client, assignment, data)}
+        return Response({"results": [results[i] for i in sorted(results)]})
 
     @staticmethod
-    def context(user, week_id, workout_id):
-        client, assignment = active_context(user)
+    def apply(user, client, assignment, data):
+        if is_future_date(user, data["log_date"]):
+            return {"status": "rejected", "errors": {"log_date": ["Cannot be in the future."]}}
+        common = {"occurred_at": data["occurred_at"], "event_id": data["id"]}
         try:
-            week = Week.objects.get(pk=week_id, phase__plan=assignment.plan)
-            workout = Workout.objects.get(pk=workout_id, plan=assignment.plan)
-        except (Week.DoesNotExist, Workout.DoesNotExist) as exc:
-            raise Http404 from exc
-        if not WeekDay.objects.filter(week=week, workout=workout).exists():
-            raise ValidationError({"workout_id": ["This workout is not scheduled in this week."]})
-        return client, assignment, week, workout
+            if data["type"].startswith("set_"):
+                exercise = Exercise.objects.get(pk=data["exercise_id"], workout__plan=assignment.plan)
+                if data["set_number"] > (exercise.sets_count or 1):
+                    return {"status": "rejected", "errors": {"set_number": ["Out of range for this exercise."]}}
+                status_ = completions.set_completion(
+                    client, exercise, data["set_number"], data["log_date"], data["type"] == "set_completed", **common
+                )
+            else:
+                completed = data["type"] == "workout_completed"
+                _, week, workout = workout_context(
+                    user, data.get("week_id"), data["workout_id"], require_scheduled=completed
+                )
+                timing = {"started_at": data.get("started_at"), "ended_at": data.get("ended_at")} if completed else {}
+                status_ = completions.workout_completion(
+                    client, workout, data["log_date"], completed, week=week, **timing, **common
+                )
+        except (Exercise.DoesNotExist, Http404):
+            return {"status": "rejected", "errors": {"detail": ["Not part of your active plan."]}}
+        except ValidationError as exc:
+            return {"status": "rejected", "errors": exc.detail}
+        return {"status": status_}
