@@ -22,6 +22,8 @@ urlpatterns = [
         views.WorkoutCompletionView.as_view(),
         name="api_workout_completion",
     ),
+    path("history/", views.HistoryView.as_view(), name="api_history"),
+    path("sync/", views.SyncView.as_view(), name="api_sync"),
     path("schema/", SpectacularAPIView.as_view(permission_classes=[]), name="api_schema"),
     path("docs/", SpectacularSwaggerView.as_view(url_name="api_schema", permission_classes=[]), name="api_docs"),
     path("redoc/", SpectacularRedocView.as_view(url_name="api_schema", permission_classes=[]), name="api_redoc"),

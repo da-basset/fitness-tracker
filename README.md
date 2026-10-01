@@ -146,8 +146,50 @@ Client data endpoints require a client profile with an active assignment:
 - `PUT`/`DELETE /api/v1/weeks/<week_id>/workouts/<workout_id>/completion/` —
   set or clear today’s workout completion and receive the updated week tally.
 
+- `PATCH /api/v1/me/` — set `{"timezone": "America/Denver"}` (IANA name).
+  `/me/` also returns `timezone` and the user's local `today`.
+- `GET /api/v1/history/?from=YYYY-MM-DD&to=YYYY-MM-DD` — finished workouts
+  (with optional `started_at`/`ended_at`) and checked-set counts per day;
+  range up to 366 days.
+- `POST /api/v1/sync/` — apply a batch (max 500) of queued offline changes.
+
 The two `PUT` endpoints are idempotent; repeated calls leave completion set,
-and repeated `DELETE` calls leave it clear. Store JWTs only in the native
+and repeated `DELETE` calls leave it clear.
+
+### Dates and time zones
+
+"Today" means today in the user's own time zone (`UserProfile.timezone`,
+default `America/Chicago`), not the server's. The schedule, workout and
+completion endpoints accept `?date=YYYY-MM-DD` to read or log another day;
+future dates (beyond a one-day clock-skew allowance) are rejected. The
+workout-completion `PUT` accepts an optional body with `started_at` /
+`ended_at` for Apple Health.
+
+### Offline sync
+
+The iOS app queues changes while offline and posts them later:
+
+```json
+{"events": [
+  {"id": "<uuid made on device>", "type": "set_completed",
+   "log_date": "2026-09-30", "occurred_at": "2026-09-30T23:10:00Z",
+   "exercise_id": 12, "set_number": 2},
+  {"id": "<uuid>", "type": "workout_completed", "log_date": "2026-09-30",
+   "occurred_at": "2026-09-30T23:40:00Z", "workout_id": 4, "week_id": 7,
+   "started_at": "2026-09-30T22:45:00Z", "ended_at": "2026-09-30T23:40:00Z"}
+]}
+```
+
+Types: `set_completed`, `set_cleared`, `workout_completed` (needs `week_id`),
+`workout_cleared`. Each event gets a result in request order: `applied`,
+`duplicate` (that `id` was already received), `stale` (a newer change to the
+same set/workout/day already won) or `rejected` with `errors`. All four mean
+the device can drop the event from its queue.
+
+Conflicts resolve last-write-wins by `occurred_at`. Every write path — web
+check-offs, the API `PUT`/`DELETE`s and sync — goes through
+`training/completions.py` and records a `SyncEvent`, so an old offline event
+can never undo a newer change made elsewhere. Store JWTs only in the native
 platform’s secure credential store.
 
 The public OpenAPI contract and self-hosted documentation are available at
