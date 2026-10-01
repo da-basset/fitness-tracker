@@ -8,7 +8,9 @@ from training.models import Exercise, Phase, Plan, PlanAssignment, Week, WeekDay
 User = get_user_model()
 
 
-class NativeApiTests(TestCase):
+class NativeApiTestCase(TestCase):
+    """Shared fixtures: one gym, owner, trainer, client and an assigned plan."""
+
     def setUp(self):
         self.owner = User.objects.create_user("owner", password="pw")
         self.gym = Gym.objects.create(name="Gym", owner=self.owner)
@@ -40,6 +42,13 @@ class NativeApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         return {"HTTP_AUTHORIZATION": f"Bearer {response.json()['access']}"}
 
+    def auth_for(self, username):
+        response = self.token_pair(username)
+        self.assertEqual(response.status_code, 200)
+        return {"HTTP_AUTHORIZATION": f"Bearer {response.json()['access']}"}
+
+
+class NativeApiTests(NativeApiTestCase):
     def test_tokens_rotate_blacklist_and_logout(self):
         pair = self.token_pair()
         self.assertEqual(pair.status_code, 200)
@@ -80,11 +89,6 @@ class NativeApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["roles"], ["owner", "trainer", "client"])
         self.assertEqual(response.json()["client_id"], owner_client.id)
-
-    def auth_for(self, username):
-        response = self.token_pair(username)
-        self.assertEqual(response.status_code, 200)
-        return {"HTTP_AUTHORIZATION": f"Bearer {response.json()['access']}"}
 
     def test_schedule_and_workout_are_client_scoped(self):
         schedule = self.client.get(reverse("api_active_schedule"), **self.auth())

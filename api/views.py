@@ -19,9 +19,14 @@ from training.completions import is_future_date, user_today
 from training.models import CompletedSet, Exercise, PlanAssignment, Week, WeekDay, Workout, WorkoutCompletion
 
 from .serializers import (
+    ActivePlanSerializer,
+    ClientWorkoutSerializer,
     CompletionSerializer,
+    HistorySerializer,
     LogoutSerializer,
+    MeSerializer,
     MeUpdateSerializer,
+    ScheduleSerializer,
     SyncEventSerializer,
     SyncRequestSerializer,
     SyncResponseSerializer,
@@ -147,11 +152,11 @@ class LogoutView(APIView):
 
 
 class MeView(APIView):
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(responses={200: MeSerializer})
     def get(self, request):
         return Response(self.payload(request.user))
 
-    @extend_schema(request=MeUpdateSerializer, responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(request=MeUpdateSerializer, responses={200: MeSerializer})
     def patch(self, request):
         serializer = MeUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -190,7 +195,7 @@ class MeView(APIView):
 
 
 class ActivePlanView(APIView):
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(responses={200: ActivePlanSerializer})
     def get(self, request):
         client, assignment = active_context(request.user)
         plan = assignment.plan
@@ -212,14 +217,14 @@ class ActivePlanView(APIView):
 
 
 class ActiveScheduleView(APIView):
-    @extend_schema(parameters=[DATE_PARAM], responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(parameters=[DATE_PARAM], responses={200: ScheduleSerializer})
     def get(self, request):
         client, assignment = active_context(request.user)
         return Response(schedule_payload(assignment.plan, client, requested_date(request)))
 
 
 class WorkoutView(APIView):
-    @extend_schema(parameters=[DATE_PARAM], responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(parameters=[DATE_PARAM], responses={200: ClientWorkoutSerializer})
     def get(self, request, workout_id):
         client, assignment = active_context(request.user)
         on_date = requested_date(request)
@@ -339,7 +344,7 @@ class HistoryView(APIView):
             OpenApiParameter("from", OpenApiTypes.DATE, required=True),
             OpenApiParameter("to", OpenApiTypes.DATE, required=True),
         ],
-        responses={200: OpenApiTypes.OBJECT},
+        responses={200: HistorySerializer},
     )
     def get(self, request):
         client, _ = active_context(request.user)

@@ -1,0 +1,2655 @@
+openapi: 3.0.3
+info:
+  title: Fitness Tracker Native API
+  version: 1.0.0
+  description: Versioned JWT API for the Fitness Tracker native client.
+paths:
+  /api/v1/assignments/{assignment_id}/unassign/:
+    post:
+      operationId: assignments_unassign_create
+      parameters:
+      - in: path
+        name: assignment_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assignments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          description: Invalid refresh token.
+  /api/v1/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/v1/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/clients/:
+    get:
+      operationId: clients_list
+      tags:
+      - clients
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClientSummary'
+          description: ''
+    post:
+      operationId: clients_create
+      tags:
+      - clients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientSummary'
+          description: ''
+  /api/v1/clients/{client_id}/:
+    get:
+      operationId: clients_retrieve
+      parameters:
+      - in: path
+        name: client_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - clients
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientDetail'
+          description: ''
+  /api/v1/exercises/{exercise_id}/sets/{set_number}/completion/:
+    put:
+      operationId: exercises_sets_completion_update
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: The user's local calendar day (YYYY-MM-DD). Defaults to today
+          in the user's time zone.
+      - in: path
+        name: exercise_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: set_number
+        schema:
+          type: integer
+        required: true
+      tags:
+      - exercises
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Completion'
+          description: ''
+        '400':
+          description: Invalid set number.
+    delete:
+      operationId: exercises_sets_completion_destroy
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: The user's local calendar day (YYYY-MM-DD). Defaults to today
+          in the user's time zone.
+      - in: path
+        name: exercise_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: set_number
+        schema:
+          type: integer
+        required: true
+      tags:
+      - exercises
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Completion'
+          description: ''
+        '400':
+          description: Invalid set number.
+  /api/v1/history/:
+    get:
+      operationId: history_retrieve
+      description: |-
+        Finished workouts between two dates (inclusive), newest first, with a
+        count of checked sets per day -- the basis for history/streak screens.
+      parameters:
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date
+        required: true
+      tags:
+      - history
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/History'
+          description: ''
+  /api/v1/me/:
+    get:
+      operationId: me_retrieve
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+    patch:
+      operationId: me_partial_update
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+  /api/v1/plans/{plan_id}/:
+    get:
+      operationId: plans_retrieve
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+          description: ''
+    delete:
+      operationId: plans_destroy
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          description: Plan has been assigned.
+  /api/v1/plans/{plan_id}/assign/:
+    post:
+      operationId: plans_assign_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanAssignRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlanAssignRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlanAssignRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          description: ''
+  /api/v1/plans/{plan_id}/exercises/{exercise_id}/:
+    patch:
+      operationId: plans_exercises_partial_update
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: exercise_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExerciseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExerciseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExerciseRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: ''
+    delete:
+      operationId: plans_exercises_destroy
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: exercise_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/plans/{plan_id}/nutrients/:
+    post:
+      operationId: plans_nutrients_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutrientRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NutrientRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NutrientRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Nutrient'
+          description: ''
+  /api/v1/plans/{plan_id}/nutrients/{nutrient_id}/:
+    patch:
+      operationId: plans_nutrients_partial_update
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: nutrient_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNutrientRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNutrientRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNutrientRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Nutrient'
+          description: ''
+    delete:
+      operationId: plans_nutrients_destroy
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: nutrient_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/plans/{plan_id}/phases/:
+    post:
+      operationId: plans_phases_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PhaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhaseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Phase'
+          description: ''
+  /api/v1/plans/{plan_id}/phases/{phase_id}/:
+    patch:
+      operationId: plans_phases_partial_update
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: phase_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPhaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPhaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPhaseRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Phase'
+          description: ''
+    delete:
+      operationId: plans_phases_destroy
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: phase_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/plans/{plan_id}/phases/{phase_id}/weeks/:
+    post:
+      operationId: plans_phases_weeks_create
+      parameters:
+      - in: path
+        name: phase_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Week'
+          description: ''
+  /api/v1/plans/{plan_id}/supplements/:
+    post:
+      operationId: plans_supplements_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplementRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupplementRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupplementRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplement'
+          description: ''
+  /api/v1/plans/{plan_id}/supplements/{supplement_id}/:
+    patch:
+      operationId: plans_supplements_partial_update
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: supplement_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSupplementRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSupplementRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSupplementRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplement'
+          description: ''
+    delete:
+      operationId: plans_supplements_destroy
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: supplement_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/plans/{plan_id}/weeks/{week_id}/:
+    patch:
+      operationId: plans_weeks_partial_update
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: week_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWeekDaysRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWeekDaysRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWeekDaysRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Week'
+          description: ''
+    delete:
+      operationId: plans_weeks_destroy
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: week_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          description: A phase needs at least one week.
+  /api/v1/plans/{plan_id}/workouts/:
+    post:
+      operationId: plans_workouts_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+          description: ''
+  /api/v1/plans/{plan_id}/workouts/{workout_id}/:
+    patch:
+      operationId: plans_workouts_partial_update
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkoutRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+          description: ''
+    delete:
+      operationId: plans_workouts_destroy
+      description: Base for plan-scoped create/update/delete of one model.
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/plans/{plan_id}/workouts/{workout_id}/exercises/:
+    post:
+      operationId: plans_workouts_exercises_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: ''
+  /api/v1/plans/{plan_id}/workouts/{workout_id}/exercises/reorder/:
+    post:
+      operationId: plans_workouts_exercises_reorder_create
+      parameters:
+      - in: path
+        name: plan_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - plans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExerciseOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExerciseOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExerciseOrderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exercise'
+          description: ''
+  /api/v1/plans/active/:
+    get:
+      operationId: plans_active_retrieve
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivePlan'
+          description: ''
+  /api/v1/plans/active/schedule/:
+    get:
+      operationId: plans_active_schedule_retrieve
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: The user's local calendar day (YYYY-MM-DD). Defaults to today
+          in the user's time zone.
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+          description: ''
+  /api/v1/sync/:
+    post:
+      operationId: sync_create
+      description: |-
+        Apply a batch of queued offline changes.
+
+        Each event gets its own result: ``applied``; ``duplicate`` (this id was
+        already received -- safe to drop from the device queue); ``stale`` (a
+        newer change to the same set/workout/day already won); or ``rejected``
+        with ``errors`` (bad input or not part of the active plan -- retrying
+        won't help). Every status except a network failure means the device can
+        remove the event from its queue.
+      tags:
+      - sync
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SyncRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SyncRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+          description: ''
+  /api/v1/trainers/:
+    get:
+      operationId: trainers_list
+      tags:
+      - trainers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trainer'
+          description: ''
+    post:
+      operationId: trainers_create
+      tags:
+      - trainers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trainer'
+          description: ''
+  /api/v1/trainers/{trainer_id}/plans/:
+    get:
+      operationId: trainers_plans_list
+      parameters:
+      - in: path
+        name: trainer_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - trainers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlanSummary'
+          description: ''
+    post:
+      operationId: trainers_plans_create
+      parameters:
+      - in: path
+        name: trainer_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - trainers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanSummaryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlanSummaryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlanSummaryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanSummary'
+          description: ''
+  /api/v1/weeks/{week_id}/workouts/{workout_id}/completion/:
+    put:
+      operationId: weeks_workouts_completion_update
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: The user's local calendar day (YYYY-MM-DD). Defaults to today
+          in the user's time zone.
+      - in: path
+        name: week_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - weeks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkoutTimingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WorkoutTimingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkoutTimingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Completion'
+          description: ''
+        '400':
+          description: Workout is not scheduled in week.
+    delete:
+      operationId: weeks_workouts_completion_destroy
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: The user's local calendar day (YYYY-MM-DD). Defaults to today
+          in the user's time zone.
+      - in: path
+        name: week_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - weeks
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Completion'
+          description: ''
+        '400':
+          description: Workout is not scheduled in week.
+  /api/v1/workouts/{workout_id}/:
+    get:
+      operationId: workouts_retrieve
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: The user's local calendar day (YYYY-MM-DD). Defaults to today
+          in the user's time zone.
+      - in: path
+        name: workout_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - workouts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientWorkout'
+          description: ''
+components:
+  schemas:
+    AccountCreateRequest:
+      type: object
+      description: |-
+        New login for a Trainer or Client. Validation is the web form's
+        (username uniqueness, Django's password validators), so both surfaces
+        accept and reject the same accounts.
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          default: ''
+        last_name:
+          type: string
+          default: ''
+        email:
+          oneOf:
+          - type: string
+            format: email
+            default: ''
+          - type: string
+            maxLength: 0
+      required:
+      - password
+      - username
+    ActiveAssignment:
+      type: object
+      properties:
+        id:
+          type: integer
+        client_id:
+          type: integer
+        assigned_at:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        trainer_id:
+          type: integer
+        gym_id:
+          type: integer
+      required:
+      - assigned_at
+      - client_id
+      - gym_id
+      - id
+      - is_active
+      - trainer_id
+    ActivePlan:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        assignment:
+          $ref: '#/components/schemas/ActiveAssignment'
+      required:
+      - assignment
+      - description
+      - id
+      - name
+    ActivePlanRef:
+      type: object
+      properties:
+        assignment_id:
+          type: integer
+        plan_id:
+          type: integer
+        plan_name:
+          type: string
+        assigned_at:
+          type: string
+          format: date-time
+      required:
+      - assigned_at
+      - assignment_id
+      - plan_id
+      - plan_name
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+        plan_id:
+          type: integer
+        plan_name:
+          type: string
+        client_id:
+          type: integer
+        assigned_at:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+      required:
+      - assigned_at
+      - client_id
+      - id
+      - is_active
+      - plan_id
+      - plan_name
+    ClientDetail:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+          readOnly: true
+        id:
+          type: integer
+        trainer_id:
+          type: integer
+        trainer_name:
+          type: string
+          readOnly: true
+        active_plan:
+          allOf:
+          - $ref: '#/components/schemas/ActivePlanRef'
+          nullable: true
+          readOnly: true
+        active_assignment:
+          allOf:
+          - $ref: '#/components/schemas/Assignment'
+          nullable: true
+        past_assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+        stats:
+          allOf:
+          - $ref: '#/components/schemas/ClientStats'
+          nullable: true
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanSummary'
+      required:
+      - active_assignment
+      - active_plan
+      - email
+      - first_name
+      - id
+      - last_name
+      - name
+      - past_assignments
+      - stats
+      - templates
+      - trainer_id
+      - trainer_name
+      - user_id
+      - username
+    ClientExercise:
+      type: object
+      properties:
+        id:
+          type: integer
+        segment:
+          $ref: '#/components/schemas/SegmentEnum'
+        name:
+          type: string
+        sets_count:
+          type: integer
+          nullable: true
+        reps_text:
+          type: string
+        rest_seconds:
+          type: integer
+          nullable: true
+        time_text:
+          type: string
+        order:
+          type: integer
+        completed_set_numbers:
+          type: array
+          items:
+            type: integer
+      required:
+      - completed_set_numbers
+      - id
+      - name
+      - order
+      - reps_text
+      - rest_seconds
+      - segment
+      - sets_count
+      - time_text
+    ClientStats:
+      type: object
+      properties:
+        all_time_completed:
+          type: integer
+        last_completed_at:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - all_time_completed
+      - last_completed_at
+    ClientSummary:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+          readOnly: true
+        id:
+          type: integer
+        trainer_id:
+          type: integer
+        trainer_name:
+          type: string
+          readOnly: true
+        active_plan:
+          allOf:
+          - $ref: '#/components/schemas/ActivePlanRef'
+          nullable: true
+          readOnly: true
+      required:
+      - active_plan
+      - email
+      - first_name
+      - id
+      - last_name
+      - name
+      - trainer_id
+      - trainer_name
+      - user_id
+      - username
+    ClientWorkout:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sub:
+          type: string
+        flavor:
+          type: string
+        color:
+          type: string
+        order:
+          type: integer
+        date:
+          type: string
+          format: date
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientExercise'
+        workout_completed:
+          type: boolean
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - color
+      - date
+      - ended_at
+      - exercises
+      - flavor
+      - id
+      - name
+      - order
+      - started_at
+      - sub
+      - workout_completed
+    ColorEnum:
+      enum:
+      - red
+      - blue
+      - green
+      - amber
+      - violet
+      - teal
+      - rose
+      type: string
+      description: |-
+        * `red` - Red
+        * `blue` - Blue
+        * `green` - Green
+        * `amber` - Amber
+        * `violet` - Violet
+        * `teal` - Teal
+        * `rose` - Rose
+    Completion:
+      type: object
+      properties:
+        completed:
+          type: boolean
+        week_tally:
+          $ref: '#/components/schemas/WeekTally'
+      required:
+      - completed
+      - week_tally
+    CompletionRequest:
+      type: object
+      properties:
+        completed:
+          type: boolean
+        week_tally:
+          $ref: '#/components/schemas/WeekTallyRequest'
+      required:
+      - completed
+    Exercise:
+      type: object
+      description: Same limits as the web editor's _validate_exercise_payload.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        workout_id:
+          type: integer
+          readOnly: true
+        segment:
+          $ref: '#/components/schemas/SegmentEnum'
+        name:
+          type: string
+          maxLength: 200
+        sets_count:
+          type: integer
+          maximum: 20
+          minimum: 1
+          nullable: true
+        reps_text:
+          type: string
+          maxLength: 60
+        rest_seconds:
+          type: integer
+          maximum: 3600
+          minimum: 0
+          nullable: true
+        time_text:
+          type: string
+          maxLength: 20
+        order:
+          type: integer
+          readOnly: true
+        is_custom:
+          type: boolean
+          readOnly: true
+      required:
+      - id
+      - is_custom
+      - name
+      - order
+      - reps_text
+      - rest_seconds
+      - segment
+      - sets_count
+      - time_text
+      - workout_id
+    ExerciseOrderRequest:
+      type: object
+      properties:
+        order:
+          type: array
+          items:
+            type: integer
+      required:
+      - order
+    ExerciseRequest:
+      type: object
+      description: Same limits as the web editor's _validate_exercise_payload.
+      properties:
+        segment:
+          $ref: '#/components/schemas/SegmentEnum'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        sets_count:
+          type: integer
+          maximum: 20
+          minimum: 1
+          nullable: true
+        reps_text:
+          type: string
+          maxLength: 60
+        rest_seconds:
+          type: integer
+          maximum: 3600
+          minimum: 0
+          nullable: true
+        time_text:
+          type: string
+          maxLength: 20
+      required:
+      - name
+      - segment
+    History:
+      type: object
+      properties:
+        to:
+          type: string
+          format: date
+        workouts:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryWorkout'
+        sets_completed_by_date:
+          type: object
+          additionalProperties:
+            type: integer
+        from:
+          type: string
+          format: date
+      required:
+      - from
+      - sets_completed_by_date
+      - to
+      - workouts
+    HistoryWorkout:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        workout:
+          $ref: '#/components/schemas/WorkoutSummary'
+        week_id:
+          type: integer
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - completed_at
+      - date
+      - ended_at
+      - started_at
+      - week_id
+      - workout
+    LogoutRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - refresh
+    Me:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolesEnum'
+        client_id:
+          type: integer
+          nullable: true
+        trainer_id:
+          type: integer
+          nullable: true
+        gym_id:
+          type: integer
+          nullable: true
+        owned_gym_ids:
+          type: array
+          items:
+            type: integer
+        timezone:
+          type: string
+        today:
+          type: string
+          format: date
+      required:
+      - client_id
+      - email
+      - first_name
+      - gym_id
+      - id
+      - last_name
+      - owned_gym_ids
+      - roles
+      - timezone
+      - today
+      - trainer_id
+      - username
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        amount:
+          type: string
+        timing:
+          type: string
+        notes:
+          type: string
+      required:
+      - amount
+      - id
+      - name
+      - notes
+      - timing
+    Nutrient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        amount:
+          type: string
+          description: e.g. "180g/day" or "5g"
+          maxLength: 100
+        timing:
+          type: string
+          description: e.g. "Morning" or "Post-workout"
+          maxLength: 100
+        notes:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - amount
+      - id
+      - name
+      - notes
+      - order
+      - timing
+    NutrientRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        amount:
+          type: string
+          description: e.g. "180g/day" or "5g"
+          maxLength: 100
+        timing:
+          type: string
+          description: e.g. "Morning" or "Post-workout"
+          maxLength: 100
+        notes:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - name
+    OwningClient:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+      - id
+      - name
+    PatchedExerciseRequest:
+      type: object
+      description: Same limits as the web editor's _validate_exercise_payload.
+      properties:
+        segment:
+          $ref: '#/components/schemas/SegmentEnum'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        sets_count:
+          type: integer
+          maximum: 20
+          minimum: 1
+          nullable: true
+        reps_text:
+          type: string
+          maxLength: 60
+        rest_seconds:
+          type: integer
+          maximum: 3600
+          minimum: 0
+          nullable: true
+        time_text:
+          type: string
+          maxLength: 20
+    PatchedMeUpdateRequest:
+      type: object
+      properties:
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 64
+    PatchedNutrientRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        amount:
+          type: string
+          description: e.g. "180g/day" or "5g"
+          maxLength: 100
+        timing:
+          type: string
+          description: e.g. "Morning" or "Post-workout"
+          maxLength: 100
+        notes:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedPhaseRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: e.g. "Ramp-In", "Build", "Deload"
+          maxLength: 60
+        note:
+          type: string
+          description: May include simple HTML like <strong>.
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedSupplementRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        amount:
+          type: string
+          description: e.g. "180g/day" or "5g"
+          maxLength: 100
+        timing:
+          type: string
+          description: e.g. "Morning" or "Post-workout"
+          maxLength: 100
+        notes:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedWeekDaysRequest:
+      type: object
+      description: |-
+        A week's Mon-Sun schedule: weekday -> workout id, or null for rest.
+        Weekdays left out keep their current value.
+      properties:
+        days:
+          type: object
+          additionalProperties:
+            type: integer
+            nullable: true
+    PatchedWorkoutRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        sub:
+          type: string
+          maxLength: 150
+        flavor:
+          type: string
+          maxLength: 250
+        color:
+          $ref: '#/components/schemas/ColorEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    Phase:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          description: e.g. "Ramp-In", "Build", "Deload"
+          maxLength: 60
+        note:
+          type: string
+          description: May include simple HTML like <strong>.
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        number:
+          type: integer
+          readOnly: true
+        weeks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Week'
+          readOnly: true
+      required:
+      - id
+      - note
+      - number
+      - order
+      - title
+      - weeks
+    PhaseRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: e.g. "Ramp-In", "Build", "Deload"
+          maxLength: 60
+        note:
+          type: string
+          description: May include simple HTML like <strong>.
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - title
+    PlanAssignRequest:
+      type: object
+      properties:
+        client_id:
+          type: integer
+      required:
+      - client_id
+    PlanDetail:
+      type: object
+      description: Everything an editor, preview or past-plan view needs in one read.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          default: ''
+        trainer_id:
+          type: integer
+          readOnly: true
+        source_plan_id:
+          type: integer
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_template:
+          type: boolean
+        can_manage:
+          type: boolean
+        owning_client:
+          allOf:
+          - $ref: '#/components/schemas/OwningClient'
+          nullable: true
+        assignment:
+          allOf:
+          - $ref: '#/components/schemas/Assignment'
+          nullable: true
+        workouts:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutDetail'
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phase'
+        nutrients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Nutrient'
+        supplements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Supplement'
+        limits:
+          $ref: '#/components/schemas/PlanLimits'
+      required:
+      - assignment
+      - can_manage
+      - created_at
+      - description
+      - id
+      - is_template
+      - limits
+      - name
+      - nutrients
+      - owning_client
+      - phases
+      - source_plan_id
+      - supplements
+      - trainer_id
+      - workouts
+    PlanLimits:
+      type: object
+      properties:
+        max_phases:
+          type: integer
+        max_weeks_per_phase:
+          type: integer
+      required:
+      - max_phases
+      - max_weeks_per_phase
+    PlanRef:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+      required:
+      - description
+      - id
+      - name
+    PlanSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          default: ''
+        trainer_id:
+          type: integer
+          readOnly: true
+        source_plan_id:
+          type: integer
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - description
+      - id
+      - name
+      - source_plan_id
+      - trainer_id
+    PlanSummaryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        description:
+          type: string
+          default: ''
+      required:
+      - name
+    RolesEnum:
+      enum:
+      - owner
+      - trainer
+      - client
+      type: string
+      description: |-
+        * `owner` - owner
+        * `trainer` - trainer
+        * `client` - client
+    Schedule:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        plan:
+          $ref: '#/components/schemas/PlanRef'
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchedulePhase'
+        nutrients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+        supplements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+      required:
+      - date
+      - nutrients
+      - phases
+      - plan
+      - supplements
+    ScheduleDay:
+      type: object
+      properties:
+        weekday:
+          $ref: '#/components/schemas/WeekdayEnum'
+        workout:
+          allOf:
+          - $ref: '#/components/schemas/WorkoutSummary'
+          nullable: true
+      required:
+      - weekday
+      - workout
+    SchedulePhase:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        note:
+          type: string
+        order:
+          type: integer
+        number:
+          type: integer
+        weeks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleWeek'
+      required:
+      - id
+      - note
+      - number
+      - order
+      - title
+      - weeks
+    ScheduleWeek:
+      type: object
+      properties:
+        id:
+          type: integer
+        order:
+          type: integer
+        number:
+          type: integer
+        label:
+          type: string
+        week_tally:
+          $ref: '#/components/schemas/WeekTally'
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleDay'
+      required:
+      - days
+      - id
+      - label
+      - number
+      - order
+      - week_tally
+    SegmentEnum:
+      enum:
+      - Main
+      - Core
+      - Cardio
+      - Stretch
+      type: string
+      description: |-
+        * `Main` - Main
+        * `Core` - Core
+        * `Cardio` - Cardio
+        * `Stretch` - Stretch
+    StatusEnum:
+      enum:
+      - applied
+      - stale
+      - duplicate
+      - rejected
+      type: string
+      description: |-
+        * `applied` - applied
+        * `stale` - stale
+        * `duplicate` - duplicate
+        * `rejected` - rejected
+    Supplement:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        amount:
+          type: string
+          description: e.g. "180g/day" or "5g"
+          maxLength: 100
+        timing:
+          type: string
+          description: e.g. "Morning" or "Post-workout"
+          maxLength: 100
+        notes:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - amount
+      - id
+      - name
+      - notes
+      - order
+      - timing
+    SupplementRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        amount:
+          type: string
+          description: e.g. "180g/day" or "5g"
+          maxLength: 100
+        timing:
+          type: string
+          description: e.g. "Morning" or "Post-workout"
+          maxLength: 100
+        notes:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - name
+    SyncRequestRequest:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          maxItems: 500
+      required:
+      - events
+    SyncResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncResult'
+      required:
+      - results
+    SyncResult:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        errors:
+          type: object
+          additionalProperties: {}
+      required:
+      - errors
+      - id
+      - status
+    TokenObtainPair:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    TokenObtainPairRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    Trainer:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+          readOnly: true
+        id:
+          type: integer
+        gym_id:
+          type: integer
+        client_count:
+          type: integer
+          readOnly: true
+      required:
+      - client_count
+      - email
+      - first_name
+      - gym_id
+      - id
+      - last_name
+      - name
+      - user_id
+      - username
+    Week:
+      type: object
+      properties:
+        id:
+          type: integer
+        order:
+          type: integer
+        number:
+          type: integer
+        label:
+          type: string
+        days:
+          type: object
+          additionalProperties:
+            type: integer
+            nullable: true
+          readOnly: true
+      required:
+      - days
+      - id
+      - label
+      - number
+      - order
+    WeekRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        order:
+          type: integer
+        number:
+          type: integer
+        label:
+          type: string
+          minLength: 1
+      required:
+      - id
+      - label
+      - number
+      - order
+    WeekTally:
+      type: object
+      properties:
+        completed:
+          type: integer
+        total:
+          type: integer
+        week_complete:
+          type: boolean
+      required:
+      - completed
+      - total
+      - week_complete
+    WeekTallyRequest:
+      type: object
+      properties:
+        completed:
+          type: integer
+        total:
+          type: integer
+        week_complete:
+          type: boolean
+      required:
+      - completed
+      - total
+      - week_complete
+    WeekdayEnum:
+      enum:
+      - Mon
+      - Tue
+      - Wed
+      - Thu
+      - Fri
+      - Sat
+      - Sun
+      type: string
+      description: |-
+        * `Mon` - Mon
+        * `Tue` - Tue
+        * `Wed` - Wed
+        * `Thu` - Thu
+        * `Fri` - Fri
+        * `Sat` - Sat
+        * `Sun` - Sun
+    Workout:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        sub:
+          type: string
+          maxLength: 150
+        flavor:
+          type: string
+          maxLength: 250
+        color:
+          $ref: '#/components/schemas/ColorEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - color
+      - flavor
+      - id
+      - name
+      - order
+      - sub
+    WorkoutDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        sub:
+          type: string
+          maxLength: 150
+        flavor:
+          type: string
+          maxLength: 250
+        color:
+          $ref: '#/components/schemas/ColorEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exercise'
+          readOnly: true
+      required:
+      - color
+      - exercises
+      - flavor
+      - id
+      - name
+      - order
+      - sub
+    WorkoutRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        sub:
+          type: string
+          maxLength: 150
+        flavor:
+          type: string
+          maxLength: 250
+        color:
+          $ref: '#/components/schemas/ColorEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - name
+    WorkoutSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sub:
+          type: string
+        flavor:
+          type: string
+        color:
+          type: string
+        order:
+          type: integer
+      required:
+      - color
+      - flavor
+      - id
+      - name
+      - order
+      - sub
+    WorkoutTimingRequest:
+      type: object
+      properties:
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
