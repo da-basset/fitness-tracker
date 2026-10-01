@@ -130,11 +130,21 @@ Check-offs are saved on the device first and synced to `POST /api/v1/sync/`
 when the app opens, returns to the foreground, reconnects, or right after a
 change.
 
+The Simulator has no airplane mode, and turning the Mac's Wi-Fi off doesn't
+take the app offline either: the app talks to Django at `127.0.0.1`, which
+stays reachable without Wi-Fi. **Stop the API instead.** Keep terminal 2
+(Metro) running, because Expo Go needs it.
+
 1. Sign in as Client1 and open a workout from Today while connected.
-2. Stop terminal 1 (or turn the Mac's Wi-Fi off) and check off some sets.
-   They stay checked, and Today says changes are waiting to sync.
-3. Start the API again (or reconnect). The changes sync, and the web app at
-   `http://127.0.0.1:8000/training/physical/` shows them on today's date.
+2. Stop terminal 1 (Ctrl+C) and check off some sets. They stay checked, and
+   Today says changes are waiting to sync.
+3. Start the API again, then bring the app to the foreground or tap
+   **Profile → Sync now**. Restarting the server doesn't count as a network
+   change, so the app won't notice it on its own, and pull-to-refresh doesn't
+   sync. The web app at `http://127.0.0.1:8000/training/physical/` then shows
+   the changes on today's date.
+
+The full offline test plan is in FIT-8.
 
 Screens you've opened before still show their last saved copy while offline.
 Trainer and owner edits need a connection.
